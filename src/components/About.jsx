@@ -55,6 +55,12 @@ const brands = [
     logoBg: 'bg-white',
     description: 'Wedding photography studio capturing bridal moments with a fine art touch.',
   },
+  {
+    name: 'JHUMKAS',
+    logo: '/logo-jhumkas.png',
+    logoBg: 'bg-[#ECE5D3]',
+    description: 'Jhumkas and jewellery traditional elegance, made to be worn and kept.',
+  },
 ]
 
 function WhatsAppIcon({ size = 18 }) {
@@ -210,11 +216,11 @@ export default function About() {
               The BlinkSky brands
             </h2>
             <p className="mx-auto mt-4 max-w-md text-center leading-relaxed text-cloud/55">
-              Three studios, one standard of work.
+              Five brands, one standard of work.
             </p>
           </Reveal>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {brands.map((b, i) => {
               const Icon = b.icon
               return (
