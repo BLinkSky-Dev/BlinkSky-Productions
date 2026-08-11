@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, MapPin, Instagram, Facebook, Check, Pencil } from 'lucide-react'
+import { Mail, MapPin, Instagram, Facebook, Youtube, Check, Pencil } from 'lucide-react'
 import TikTok from './icons/TikTok'
 import Reveal from './Reveal'
 import { services } from '../data/services'
@@ -130,6 +130,12 @@ export default function Contact() {
                   icon: TikTok,
                   href: STUDIO.tiktok,
                   label: '@blinkskyproduction on TikTok',
+                  external: true,
+                },
+                {
+                  icon: Youtube,
+                  href: STUDIO.youtube,
+                  label: 'BLINKSKY Production on YouTube',
                   external: true,
                 },
               ].map(({ icon: Icon, href, label, external }) => (

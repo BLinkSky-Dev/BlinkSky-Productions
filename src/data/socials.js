@@ -14,6 +14,7 @@ export const studio = {
   instagram: 'https://www.instagram.com/blink_sky_production',
   facebook: 'https://www.facebook.com/share/19CaU4mRox/',
   tiktok: 'https://www.tiktok.com/@blinkskyproduction',
+  youtube: 'https://www.youtube.com/@BLINKSKYProduction',
 }
 
 /** Build a WhatsApp deep link with a pre-filled message. */

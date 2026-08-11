@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, X, Instagram, Facebook, ArrowUpRight } from 'lucide-react'
+import { Menu, X, Instagram, Facebook, Youtube, ArrowUpRight } from 'lucide-react'
 import Logo from './Logo'
 import TikTok from './icons/TikTok'
 import { studio } from '../data/socials'
@@ -17,6 +17,7 @@ const socials = [
   { icon: Instagram, href: studio.instagram, label: 'Instagram' },
   { icon: Facebook, href: studio.facebook, label: 'Facebook' },
   { icon: TikTok, href: studio.tiktok, label: 'TikTok' },
+  { icon: Youtube, href: studio.youtube, label: 'YouTube' },
 ]
 
 export default function Nav() {
