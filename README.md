@@ -19,8 +19,8 @@ npm run dev
 Open the URL Vite prints (usually http://localhost:5173).
 Build for production with `npm run build`; preview it with `npm run preview`.
 
-The site works immediately with tasteful **sample images**. Everything below is
-about swapping in the real content.
+The site works offline with **saved studio shots** in `public/gallery/`.
+Connect Instagram (below) for a live feed; otherwise those local folders are used.
 
 ---
 
@@ -40,15 +40,29 @@ To use the real logo:
 
 ## 2. Your photos
 
-Portfolio images live in `src/data/portfolio.js`. Each entry has a `src`.
+When the Instagram API is unavailable, the site loads local folders:
 
-- **Easiest:** drop your images into `public/gallery/` and point `src` at
-  `/gallery/your-file.jpg`.
-- `span: 'tall'` makes a tile twice as tall; `span: 'wide'` makes it span two
-  columns. Leave it off for a normal square. Mix them for a magazine feel.
-- Update the `categories` list at the top of the same file to match your work.
+| Section | Folder |
+|--------|--------|
+| **Selected Work** | `public/gallery/selected-work/` |
+| **Latest on Instagram** | `public/gallery/instagram/` |
+| **Services** | `public/gallery/services/` |
 
-Service names, blurbs and icons live in `src/data/services.js`.
+Drop JPGs/PNGs/WebPs into those folders (prefer `01.jpg`, `02.jpg`, …), then run:
+
+```bash
+npm run gallery:refresh
+```
+
+That rebuilds each folder’s `meta.json` so the site picks up new files.
+
+To refresh from live Instagram (needs `.env` credentials):
+
+```bash
+npm run gallery:download
+```
+
+Service names and blurbs live in `src/data/services.js`.
 Contact details and all social links (email, phone, Instagram, Facebook,
 TikTok) live in **one file** — `src/data/socials.js`. Edit there and the nav,
 Instagram section, contact list and footer all update.
@@ -66,7 +80,7 @@ never disappear. Transparent PNGs look best.
 
 ## 3. Instagram Graph API (live feed)
 
-The Instagram section shows sample tiles until you connect the API. Two ways:
+The Instagram / Selected Work sections use saved local gallery images until you connect the API. Two ways:
 
 ### Option A — direct (quickest, token ships to browser)
 
@@ -188,9 +202,14 @@ To capture submissions instead, point it at a service like
 ## Project structure
 
 ```
+public/gallery/
+  selected-work/   Saved Selected Work (API fallback)
+  instagram/       Saved Latest Instagram (API fallback)
+  services/        Service card images
+scripts/           gallery:download / gallery:refresh
 src/
-  components/   UI sections (Hero, Services, Portfolio, InstagramFeed, …)
-  data/         services.js, portfolio.js  ← edit your content here
-  hooks/        useInstagramFeed.js, useReveal.js
-api/            instagram.js  ← optional serverless proxy
+  components/      UI sections (Hero, Services, Portfolio, InstagramFeed, …)
+  data/            services.js, socials.js, localGalleries.js, …
+  hooks/           useInstagramFeed.js, useReveal.js
+api/               instagram.js  ← optional serverless proxy
 ```

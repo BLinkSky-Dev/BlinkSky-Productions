@@ -1,50 +1,85 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Plus, Instagram } from 'lucide-react'
-import { portfolio, categories } from '../data/portfolio'
+import { Heart, MessageCircle, Instagram, Play } from 'lucide-react'
+import { useInstagramFeed } from '../hooks/useInstagramFeed'
 import { studio } from '../data/socials'
 import Reveal from './Reveal'
 import SectionHeading from './SectionHeading'
 import SmartImage from './SmartImage'
 import Watermark from './Watermark'
-import Lightbox from './Lightbox'
 
-const spanClasses = {
-  tall: 'row-span-2',
-  wide: 'sm:col-span-2',
+const SPAN_PATTERN = [
+  'col-span-2 row-span-2',
+  'row-span-2',
+  '',
+  '',
+  'row-span-2',
+  '',
+  'row-span-2',
+  'col-span-2',
+  '',
+  '',
+  'row-span-2',
+  '',
+]
+
+function spanForItem(index, ratio) {
+  if (ratio && ratio > 1.15) return 'col-span-2'
+  return SPAN_PATTERN[index % SPAN_PATTERN.length]
 }
 
-/** Frames shown per view before we hand people off to Instagram. */
-const MAX_SHOWN = 10
+function SkeletonGrid() {
+  return (
+    <div className="mt-10 grid auto-rows-[220px] grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div
+          key={i}
+          className={`animate-pulse rounded-xl bg-ink-800/60 ${
+            i === 0 || i === 5 ? 'row-span-2' : i === 2 ? 'col-span-2' : ''
+          }`}
+        />
+      ))}
+    </div>
+  )
+}
 
 export default function Portfolio() {
-  const [filter, setFilter] = useState('all')
-  const [lightboxIndex, setLightboxIndex] = useState(null)
+  const { posts, status } = useInstagramFeed({ limit: 15, sortBy: 'engagement' })
+  const [ratios, setRatios] = useState({})
+
+  useEffect(() => {
+    if (!posts.length) return
+    let alive = true
+    posts.forEach((p) => {
+      const src = p.media_type === 'VIDEO' ? p.thumbnail_url : p.media_url
+      if (!src) return
+      const img = new Image()
+      img.onload = () => {
+        if (!alive) return
+        setRatios((prev) => ({ ...prev, [p.id]: img.naturalWidth / img.naturalHeight }))
+      }
+      img.onerror = () => {
+        if (!alive) return
+        setRatios((prev) => ({ ...prev, [p.id]: 1 }))
+      }
+      img.src = src
+    })
+    return () => { alive = false }
+  }, [posts])
 
   const items = useMemo(
     () =>
-      filter === 'all'
-        ? portfolio
-        : portfolio.filter((p) => p.category === filter),
-    [filter],
+      posts.map((p) => ({
+        id: p.id,
+        src: p.media_type === 'VIDEO' ? p.thumbnail_url : p.media_url,
+        isVideo: p.media_type === 'VIDEO',
+        title: (p.caption?.split('\n')[0] || 'BlinkSky Productions').replace(/#\S+/g, '').trim().slice(0, 60) || 'BlinkSky Productions',
+        permalink: p.permalink,
+        likes: p.like_count,
+        comments: p.comments_count,
+      })),
+    [posts],
   )
-
-  // The gallery is a teaser, not an archive, cap it and send people to
-  // Instagram for the full body of work.
-  const shown = useMemo(() => items.slice(0, MAX_SHOWN), [items])
-
-  const navLightbox = (dir) =>
-    setLightboxIndex((i) => (i + dir + shown.length) % shown.length)
-
-  // How many frames sit in each category, so the filters advertise what's
-  // behind them instead of being unlabelled guesses.
-  const counts = useMemo(() => {
-    const c = { all: portfolio.length }
-    portfolio.forEach((p) => (c[p.category] = (c[p.category] ?? 0) + 1))
-    return c
-  }, [])
-
-  const labelFor = (id) => categories.find((c) => c.id === id)?.label ?? id
 
   return (
     <section id="work" className="relative py-24 md:py-32 bg-ink-900/40">
@@ -52,93 +87,84 @@ export default function Portfolio() {
         <SectionHeading
           eyebrow="Selected Work"
           title="A gallery of frames we're proud of."
-          intro="A living portfolio across every kind of shoot. Filter by category, and tap any frame to view it full-size."
+          intro="Sorted by what our audience loved most."
         />
 
-        {/* Filter pills, a swipeable snap row on phones so they never wrap into
-            a cramped block; normal wrapping from sm up. 44px touch targets. */}
-        <div
-          className="-mx-6 mt-10 flex snap-x gap-2.5 overflow-x-auto px-6 pb-1
-                     [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
-                     sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
-        >
-          {categories.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setFilter(c.id)}
-              aria-pressed={filter === c.id}
-              className={`min-h-[44px] shrink-0 snap-start rounded-full px-5 text-sm
-                          transition-all duration-300 ease-smooth cursor-pointer active:scale-95 ${
-                            filter === c.id
-                              ? 'bg-champagne text-ink-950 font-medium'
-                              : 'border border-ink-600 text-cloud/70 hover:border-champagne/50 hover:text-cloud'
-                          }`}
+        {status === 'loading' ? (
+          <SkeletonGrid />
+        ) : (
+          <>
+            <motion.div
+              layout
+              className="mt-10 grid auto-rows-[220px] grid-cols-2 gap-3 [grid-auto-flow:dense] md:grid-cols-3 md:gap-4 lg:grid-cols-4"
             >
-              {c.label}
-              <span
-                className={`ml-2 text-xs tabular-nums ${
-                  filter === c.id ? 'text-ink-950/55' : 'text-cloud/40'
-                }`}
-              >
-                {counts[c.id] ?? 0}
-              </span>
-            </button>
-          ))}
-        </div>
+              <AnimatePresence mode="popLayout">
+                {items.map((item, i) => {
+                  const spanClass = spanForItem(i, ratios[item.id])
+                  return (
+                    <motion.a
+                      layout
+                      key={item.id}
+                      href={item.permalink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, scale: 0.92 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.92 }}
+                      transition={{ duration: 0.4, delay: i * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                      className={`group relative overflow-hidden rounded-xl cursor-pointer transition-transform active:scale-[0.97] ${spanClass}`}
+                      aria-label={`View on Instagram: ${item.title}`}
+                    >
+                      <SmartImage
+                        src={item.src}
+                        alt={item.title}
+                        className="transition-transform duration-700 ease-smooth group-hover:scale-105"
+                      />
+                      <Watermark size="sm" />
 
-        {/* Masonry-ish grid */}
-        <motion.div
-          layout
-          className="mt-10 grid auto-rows-[220px] grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4"
-        >
-          <AnimatePresence mode="popLayout">
-            {shown.map((item, i) => (
-              <motion.button
-                layout
-                key={item.id}
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.92 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                onClick={() => setLightboxIndex(i)}
-                className={`group relative overflow-hidden rounded-xl cursor-pointer transition-transform active:scale-[0.97] ${
-                  spanClasses[item.span] || ''
-                }`}
-                aria-label={`Open ${item.title}`}
-              >
-                <SmartImage
-                  src={item.src}
-                  alt={item.title}
-                  className="transition-transform duration-700 ease-smooth group-hover:scale-105"
-                />
-                <Watermark size="sm" />
-                {/* On touch there is no hover, so the title/gradient stay
-                    visible by default and only hide-until-hover from md up. */}
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent to-transparent transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100" />
-                {/* Category badge, always on, so every frame says what kind of
-                    shoot it is even when the filter is set to All Work. */}
-                <span
-                  className="absolute left-2.5 top-2.5 rounded-full bg-ink-950/70 px-2.5 py-1
-                             text-[10px] font-medium uppercase tracking-wider text-champagne
-                             backdrop-blur-sm md:left-3 md:top-3"
-                >
-                  {labelFor(item.category)}
-                </span>
+                      {/* Reel badge */}
+                      {item.isVideo && (
+                        <div className="absolute left-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-ink-950/70 backdrop-blur-sm md:left-3 md:top-3">
+                          <Play size={11} className="fill-cloud text-cloud ml-0.5" />
+                        </div>
+                      )}
 
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 transition-all duration-300 md:p-4 md:opacity-0 md:group-hover:opacity-100">
-                  <span className="font-serif text-base leading-tight text-cloud md:text-lg">
-                    {item.title}
-                  </span>
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-champagne text-ink-950">
-                    <Plus size={16} />
-                  </span>
-                </div>
-              </motion.button>
-            ))}
-          </AnimatePresence>
-        </motion.div>
+                      {/* Likes badge */}
+                      {item.likes > 0 && (
+                        <div className="absolute right-2.5 top-2.5 flex items-center gap-2 rounded-full bg-ink-950/70 px-2.5 py-1 backdrop-blur-sm md:right-3 md:top-3">
+                          <span className="flex items-center gap-1 text-[10px] font-medium text-champagne">
+                            <Heart size={10} className="fill-champagne" />
+                            {item.likes >= 1000 ? `${(item.likes / 1000).toFixed(1)}k` : item.likes}
+                          </span>
+                          {item.comments > 0 && (
+                            <span className="flex items-center gap-1 text-[10px] font-medium text-cloud/70">
+                              <MessageCircle size={10} />
+                              {item.comments}
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-        {/* Hand-off to Instagram, where the full body of work lives. */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-ink-950/85 via-transparent to-transparent transition-opacity duration-300 md:opacity-0 md:group-hover:opacity-100" />
+                      <div className="absolute inset-x-0 bottom-0 p-3 transition-all duration-300 md:p-4 md:opacity-0 md:group-hover:opacity-100">
+                        <span className="font-serif text-base leading-tight text-cloud md:text-lg line-clamp-2">
+                          {item.title}
+                        </span>
+                      </div>
+                    </motion.a>
+                  )
+                })}
+              </AnimatePresence>
+            </motion.div>
+
+            {status === 'fallback' && (
+              <p className="mt-6 text-center text-xs text-cloud/30">
+                Showing saved Selected Work. Live Instagram will appear when the API is connected.
+              </p>
+            )}
+          </>
+        )}
+
         <Reveal delay={0.1}>
           <div className="mt-10 flex flex-col items-center gap-3 text-center">
             <a
@@ -152,13 +178,8 @@ export default function Portfolio() {
           </div>
         </Reveal>
       </div>
-
-      <Lightbox
-        items={shown.map((i) => ({ ...i, categoryLabel: labelFor(i.category) }))}
-        index={lightboxIndex}
-        onClose={() => setLightboxIndex(null)}
-        onNav={navLightbox}
-      />
     </section>
   )
 }
+
+

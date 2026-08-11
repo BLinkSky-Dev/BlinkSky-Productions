@@ -1,9 +1,9 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { ArrowDown, Instagram } from 'lucide-react'
 import { whatsappLink } from '../data/socials'
 
-const heroImg =
-  'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1920&q=80'
+// Local hero still — swap the file in public/gallery/selected-work/ (or change this path).
+const heroImg = '/gallery/selected-work/01.jpg'
 
 export default function Hero() {
   return (
@@ -14,11 +14,12 @@ export default function Hero() {
         initial={{ scale: 1.12 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: '50% 0%' }}
       >
         <img
           src={heroImg}
           alt="A couple photographed at golden hour by BlinkSky Productions"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-top"
           fetchpriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-950/70 via-ink-950/50 to-ink-950" />
@@ -53,9 +54,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.9 }}
         >
-          From weddings and bridal portraits to model, commercial and celebration
-          shoots, BlinkSky Productions turns fleeting moments into cinematic
-          stories you&apos;ll return to for a lifetime.
+          BlinkSky Productions shoots weddings, bridal portraits, model portfolios, commercial campaigns and birthdays. Every image is made to be worth holding onto.
         </motion.p>
 
         <motion.div
@@ -93,3 +92,4 @@ export default function Hero() {
     </section>
   )
 }
+
