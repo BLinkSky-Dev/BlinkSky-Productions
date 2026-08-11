@@ -6,9 +6,9 @@ import { whatsappLink } from '../data/socials'
 /**
  * Hero media:
  *   1. Landscape reels in public/gallery/hero/ (meta.json from npm run gallery:hero)
- *   2. Fallback still — the previous hero placeholder image
+ *   2. Fallback — BlinkSky logo on the dark field
  */
-const HERO_POSTER = '/gallery/selected-work/01.jpg'
+const HERO_LOGO = '/logo-landscape.png'
 const HERO_META = '/gallery/hero/meta.json'
 
 export default function Hero() {
@@ -70,13 +70,20 @@ export default function Hero() {
         transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         style={{ transformOrigin: '50% 0%' }}
       >
-        {/* Still always underneath — shows while video loads / if video fails */}
-        <img
-          src={HERO_POSTER}
-          alt="A couple photographed at golden hour by BlinkSky Productions"
-          className="absolute inset-0 h-full w-full object-cover object-top"
-          fetchpriority="high"
-        />
+        {/* Logo fallback — shows while video loads / if video is unavailable */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center bg-ink-950 transition-opacity duration-700 ${
+            videoReady && showVideo ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.12),transparent_55%)]" />
+          <img
+            src={HERO_LOGO}
+            alt="BlinkSky Productions"
+            className="relative w-[min(72vw,28rem)] max-w-lg object-contain opacity-90"
+            fetchpriority="high"
+          />
+        </div>
 
         {showVideo && (
           <video
@@ -86,7 +93,6 @@ export default function Hero() {
               videoReady ? 'opacity-100' : 'opacity-0'
             }`}
             src={src}
-            poster={HERO_POSTER}
             autoPlay
             muted
             playsInline
