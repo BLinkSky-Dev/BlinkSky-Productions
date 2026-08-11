@@ -8,39 +8,36 @@ import { GALLERY, loadLocalPosts } from '../data/localGalleries'
  * Options:
  *   limit   — how many posts to return (default 12)
  *   sortBy  — 'recent' (default) | 'engagement'
- *             'engagement' fetches one page (~50 posts), sorts by likes+comments,
- *             returns top `limit`. Never paginates the whole account history.
  *
- * Performance:
- *   1. Paint local gallery immediately (no multi-second skeleton).
- *   2. Upgrade to live Instagram when the API responds.
- *   3. Abort the live request after API_TIMEOUT_MS and keep local.
- *   4. Cache the last good live response in sessionStorage for instant revisits.
+ * Engagement flow (Selected Work):
+ *   1. Paint local / cached gallery immediately.
+ *   2. Fetch the first ~50 live posts, sort by likes+comments, swap in top `limit`.
+ *   3. Keep paginating the rest of the account in the background.
+ *   4. When every page is in, re-sort the full set and swap again.
+ *
+ * Recent flow (Instagram section):
+ *   Single page of `limit` posts — no full-account walk.
  *
  * SETUP:
- *   1. Convert IG account to Business/Creator and link to a Facebook Page.
- *   2. Create a Meta app, add Instagram Graph API, generate a long-lived token + user id.
- *   3. Prefer the serverless proxy (VITE_IG_PROXY_URL=/api/instagram) so the token
- *      never ships to the browser. Or for local dev:
- *          VITE_IG_ACCESS_TOKEN=your_long_lived_token
- *          VITE_IG_USER_ID=17841xxxxxxxxxx
- *   4. Restart `npm run dev`.
- *
- * When the API is missing or fails, loads saved images from:
- *   public/gallery/selected-work/  (sortBy: 'engagement')
- *   public/gallery/instagram/      (sortBy: 'recent')
+ *   Prefer the serverless proxy (VITE_IG_PROXY_URL=/api/instagram) so the token
+ *   never ships to the browser. Or for local dev:
+ *     VITE_IG_ACCESS_TOKEN=…
+ *     VITE_IG_USER_ID=…
  */
 
 const BASE_FIELDS =
   'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count'
 
-/** Give up on live Instagram and keep local gallery after this. */
-const API_TIMEOUT_MS = 4000
-
-/** One page is enough to pick top posts — do not walk paging.next. */
+/** First live page size for engagement sort — shown while the full crawl runs. */
 const ENGAGEMENT_POOL = 50
 
-/** Reuse a successful live fetch within the same browser tab. */
+/** Soft cap so a huge archive cannot hammer the API forever. */
+const MAX_ENGAGEMENT_PAGES = 40
+
+/** How long to wait for the *first* live page before keeping local/cache. */
+const FIRST_PAGE_TIMEOUT_MS = 5000
+
+/** Reuse a successful full engagement result within the same browser tab. */
 const CACHE_TTL_MS = 5 * 60 * 1000
 
 function withCategories(list) {
@@ -52,6 +49,10 @@ function withCategories(list) {
 
 function engagementScore(post) {
   return (post.like_count || 0) + (post.comments_count || 0)
+}
+
+function byEngagement(a, b) {
+  return engagementScore(b) - engagementScore(a)
 }
 
 function fallbackFolder(sortBy) {
@@ -95,6 +96,48 @@ function usableMedia(list) {
   return (list || []).filter((m) => m.media_type !== 'VIDEO' || m.thumbnail_url)
 }
 
+function topEngagement(list, limit) {
+  return withCategories([...list].sort(byEngagement).slice(0, limit))
+}
+
+/**
+ * Build the first-page URL and a helper that follows cursors without leaking
+ * the access token when using the proxy.
+ */
+function createPager({ proxy, token, userId, pageSize, signal }) {
+  if (proxy) {
+    const firstUrl = `${proxy}?limit=${pageSize}`
+    async function fetchPage(url) {
+      const res = await fetch(url, { signal })
+      if (!res.ok) throw new Error(`IG ${res.status}`)
+      const json = await res.json()
+      if (json.error) throw new Error(json.error.message || 'Instagram error')
+      const after = json.paging?.cursors?.after || null
+      const nextUrl = after ? `${proxy}?limit=${pageSize}&after=${encodeURIComponent(after)}` : null
+      return { data: usableMedia(json.data), nextUrl }
+    }
+    return { firstUrl, fetchPage }
+  }
+
+  if (token && userId) {
+    const firstUrl =
+      `https://graph.instagram.com/${userId}/media` +
+      `?fields=${BASE_FIELDS}&limit=${pageSize}&access_token=${token}`
+    async function fetchPage(url) {
+      const res = await fetch(url, { signal })
+      if (!res.ok) throw new Error(`IG ${res.status}`)
+      const json = await res.json()
+      if (json.error) throw new Error(json.error.message || 'Instagram error')
+      // Direct Graph calls may expose the token inside paging.next — only used
+      // when the token is already in the client (local/dev). Prefer the proxy in prod.
+      return { data: usableMedia(json.data), nextUrl: json.paging?.next ?? null }
+    }
+    return { firstUrl, fetchPage }
+  }
+
+  return null
+}
+
 export function useInstagramFeed({ limit = 12, sortBy = 'recent' } = {}) {
   const [posts, setPosts] = useState([])
   const [status, setStatus] = useState('loading')
@@ -105,80 +148,113 @@ export function useInstagramFeed({ limit = 12, sortBy = 'recent' } = {}) {
     const proxy = import.meta.env.VITE_IG_PROXY_URL
 
     const controller = new AbortController()
-    const fetchLimit = sortBy === 'engagement' ? ENGAGEMENT_POOL : limit
-    let timedOut = false
+    const { signal } = controller
 
     async function load() {
-      // Instant paint from a fresh in-tab cache, then local files.
+      // 1) Instant paint from cache, else local files.
       const cached = readCache(sortBy, limit)
       if (cached?.length) {
         setPosts(cached)
         setStatus('ready')
       } else {
         const local = await loadFallback(sortBy, limit)
-        if (controller.signal.aborted) return
+        if (signal.aborted) return
         if (local.length) {
           setPosts(local)
           setStatus('fallback')
         }
       }
 
-      const baseUrl = proxy
-        ? `${proxy}?limit=${fetchLimit}`
-        : token && userId
-          ? `https://graph.instagram.com/${userId}/media?fields=${BASE_FIELDS}&limit=${fetchLimit}&access_token=${token}`
-          : null
+      const pageSize = sortBy === 'engagement' ? ENGAGEMENT_POOL : limit
+      const pager = createPager({ proxy, token, userId, pageSize, signal })
 
-      if (!baseUrl) {
-        if (!cached?.length) {
-          // Local already applied above; if nothing local either, leave empty fallback.
-          setStatus((s) => (s === 'loading' ? 'fallback' : s))
-        }
+      if (!pager) {
+        setStatus((s) => (s === 'loading' ? 'fallback' : s))
         return
       }
 
-      const timeoutId = setTimeout(() => {
-        timedOut = true
-        controller.abort()
-      }, API_TIMEOUT_MS)
+      // 2) First page — soft timeout so a dead API does not block forever.
+      const firstCtrl = new AbortController()
+      const onAbort = () => firstCtrl.abort()
+      signal.addEventListener('abort', onAbort)
+      const firstTimeout = setTimeout(() => firstCtrl.abort(), FIRST_PAGE_TIMEOUT_MS)
 
+      let first
       try {
-        // Single request only — never follow paging.next (that was the ~12s stall).
-        const res = await fetch(baseUrl, { signal: controller.signal })
-        if (!res.ok) throw new Error(`IG ${res.status}`)
-        const json = await res.json()
-        if (json.error) throw new Error(json.error.message || 'Instagram error')
-
-        let data = usableMedia(json.data)
-        if (sortBy === 'engagement') {
-          data = [...data].sort((a, b) => engagementScore(b) - engagementScore(a))
-        }
-        if (!data.length) throw new Error('no media')
-
-        const next = withCategories(data.slice(0, limit))
-        setPosts(next)
-        setStatus('ready')
-        writeCache(sortBy, limit, next)
+        // Temporary signal for first page only
+        const firstPager = createPager({
+          proxy,
+          token,
+          userId,
+          pageSize,
+          signal: firstCtrl.signal,
+        })
+        first = await firstPager.fetchPage(firstPager.firstUrl)
       } catch (err) {
         if (err.name === 'AbortError') {
-          if (timedOut) {
-            console.warn('[Instagram] timed out — keeping local / cached gallery')
+          if (!signal.aborted) {
+            console.warn('[Instagram] first page timed out — keeping local / cached gallery')
             setStatus((s) => (s === 'loading' ? 'fallback' : s))
           }
           return
         }
         console.warn('[Instagram] falling back to local gallery:', err.message)
         setStatus((s) => (s === 'ready' ? s : 'fallback'))
-        // Local/cache usually already painted; only fetch local if still empty.
-        setPosts((prev) => {
-          if (prev.length) return prev
-          loadFallback(sortBy, limit).then((local) => {
-            if (!controller.signal.aborted && local.length) setPosts(local)
-          })
-          return prev
-        })
+        return
       } finally {
-        clearTimeout(timeoutId)
+        clearTimeout(firstTimeout)
+        signal.removeEventListener('abort', onAbort)
+      }
+
+      if (signal.aborted) return
+      if (!first.data.length) {
+        setStatus((s) => (s === 'ready' ? s : 'fallback'))
+        return
+      }
+
+      // Provisional top from the first ~50 (or recent page).
+      const provisional =
+        sortBy === 'engagement'
+          ? topEngagement(first.data, limit)
+          : withCategories(first.data.slice(0, limit))
+
+      setPosts(provisional)
+      setStatus('ready')
+
+      // Recent feed: one page is enough.
+      if (sortBy !== 'engagement') {
+        writeCache(sortBy, limit, provisional)
+        return
+      }
+
+      // Cache the provisional result so revisits are fast even if the crawl is mid-flight.
+      writeCache(sortBy, limit, provisional)
+
+      // 3) Background crawl — walk the rest of the account, then swap true tops.
+      if (!first.nextUrl) return
+
+      const all = [...first.data]
+      let nextUrl = first.nextUrl
+      let pages = 1
+
+      try {
+        while (nextUrl && pages < MAX_ENGAGEMENT_PAGES && !signal.aborted) {
+          const page = await pager.fetchPage(nextUrl)
+          all.push(...page.data)
+          nextUrl = page.nextUrl
+          pages += 1
+        }
+
+        if (signal.aborted) return
+
+        const final = topEngagement(all, limit)
+        setPosts(final)
+        setStatus('ready')
+        writeCache(sortBy, limit, final)
+      } catch (err) {
+        if (err.name === 'AbortError') return
+        // Keep the provisional top-50 result — still useful.
+        console.warn('[Instagram] full engagement crawl failed — keeping first-page tops:', err.message)
       }
     }
 
