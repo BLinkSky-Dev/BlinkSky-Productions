@@ -28,13 +28,6 @@
     overflow-x: hidden;
   }
 
-  /* Room for the mobile sticky CTA bar so it never covers content. */
-  @media (max-width: 639px) {
-    body {
-      padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
-    }
-  }
-
   ::selection {
     @apply bg-champagne/30 text-cloud;
   }
