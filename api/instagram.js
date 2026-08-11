@@ -24,8 +24,9 @@ export default async function handler(req, res) {
     return
   }
 
+  // like_count / comments_count power Selected Work's engagement sort.
   const fields =
-    'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp'
+    'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count'
   const url = `https://graph.instagram.com/${userId}/media?fields=${fields}&limit=${limit}&access_token=${token}`
 
   try {
@@ -37,9 +38,10 @@ export default async function handler(req, res) {
       res.status(502).json({ error: json.error.message || 'Instagram error' })
       return
     }
-    // Live feed: cache only briefly at the edge so new posts appear within a
+    // Live feed: cache briefly at the edge so new posts appear within a
     // minute, while still shielding the API from every single page view.
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300')
+    // Longer SWR window keeps Selected Work snappy when Instagram is slow.
+    res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=600')
     res.status(200).json({ data: json.data || [] })
   } catch (err) {
     res.status(502).json({ error: err.message })

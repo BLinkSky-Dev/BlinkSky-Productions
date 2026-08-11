@@ -50,7 +50,9 @@ export default function Portfolio() {
   useEffect(() => {
     if (!posts.length) return
     let alive = true
-    posts.forEach((p) => {
+    // Only probe the first few for mosaic spans — measuring every remote
+    // Instagram URL raced the grid and burned bandwidth on the critical path.
+    posts.slice(0, 8).forEach((p) => {
       const src = p.media_type === 'VIDEO' ? p.thumbnail_url : p.media_url
       if (!src) return
       const img = new Image()

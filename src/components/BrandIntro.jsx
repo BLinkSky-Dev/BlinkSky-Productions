@@ -8,24 +8,37 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
  * Shown ONCE per browser session (sessionStorage) so returning to the page
  * mid-visit isn't slowed down, and skipped entirely for reduced-motion users.
  * Total on-screen time is ~1.6s, and it never blocks content loading beneath.
+ *
+ * `show` is decided synchronously on the first render so the overlay paints
+ * before Nav/Hero — deciding in useEffect caused a one-frame flash of the site.
  */
 const SEEN_KEY = 'blinksky:intro-seen'
 
+function shouldShowIntro() {
+  if (typeof window === 'undefined') return false
+  try {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
+    return sessionStorage.getItem(SEEN_KEY) !== '1'
+  } catch {
+    return false // private mode / storage blocked — skip the intro
+  }
+}
+
 export default function BrandIntro() {
   const reduce = useReducedMotion()
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(() => {
+    const visible = shouldShowIntro()
+    if (visible) document.body.style.overflow = 'hidden'
+    return visible
+  })
 
   useEffect(() => {
-    if (reduce) return
-    let seen = false
-    try {
-      seen = sessionStorage.getItem(SEEN_KEY) === '1'
-    } catch {
-      seen = false // private mode / storage blocked, just skip the intro
+    if (reduce) {
+      if (show) setShow(false)
+      return
     }
-    if (seen) return
+    if (!show) return
 
-    setShow(true)
     document.body.style.overflow = 'hidden'
     const t = setTimeout(() => {
       setShow(false)
@@ -40,7 +53,7 @@ export default function BrandIntro() {
       clearTimeout(t)
       document.body.style.overflow = ''
     }
-  }, [reduce])
+  }, [reduce, show])
 
   useEffect(() => {
     if (!show) document.body.style.overflow = ''
