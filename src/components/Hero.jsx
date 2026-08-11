@@ -6,9 +6,9 @@ import { whatsappLink } from '../data/socials'
 /**
  * Hero media:
  *   1. Landscape reels in public/gallery/hero/ (meta.json from npm run gallery:hero)
- *   2. Fallback — BlinkSky logo on the dark field
+ *   2. Fallback — dark field (logo fallback commented out)
  */
-const HERO_LOGO = '/logo-landscape.png'
+// const HERO_LOGO = '/logo-landscape.png'
 const HERO_META = '/gallery/hero/meta.json'
 
 export default function Hero() {
@@ -70,7 +70,8 @@ export default function Hero() {
         transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         style={{ transformOrigin: '50% 0%' }}
       >
-        {/* Logo fallback — shows while video loads / if video is unavailable */}
+        {/* Logo fallback — commented out; dark field shows until video is ready */}
+        {/*
         <div
           className={`absolute inset-0 flex items-center justify-center bg-ink-950 transition-opacity duration-700 ${
             videoReady && showVideo ? 'opacity-0' : 'opacity-100'
@@ -84,6 +85,8 @@ export default function Hero() {
             fetchpriority="high"
           />
         </div>
+        */}
+        <div className="absolute inset-0 bg-ink-950" />
 
         {showVideo && (
           <video
