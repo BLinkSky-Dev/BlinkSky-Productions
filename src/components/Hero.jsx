@@ -1,14 +1,68 @@
-﻿import { motion } from 'framer-motion'
+﻿import { useEffect, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import { ArrowDown, Instagram } from 'lucide-react'
 import { whatsappLink } from '../data/socials'
 
-// Local hero still — swap the file in public/gallery/selected-work/ (or change this path).
-const heroImg = '/gallery/selected-work/01.jpg'
+/**
+ * Hero media:
+ *   1. Landscape reels in public/gallery/hero/ (meta.json from npm run gallery:hero)
+ *   2. Fallback still — the previous hero placeholder image
+ */
+const HERO_POSTER = '/gallery/selected-work/01.jpg'
+const HERO_META = '/gallery/hero/meta.json'
 
 export default function Hero() {
+  const videoRef = useRef(null)
+  const [videos, setVideos] = useState([])
+  const [index, setIndex] = useState(0)
+  const [videoReady, setVideoReady] = useState(false)
+  const [videoFailed, setVideoFailed] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduceMotion(mq.matches)
+    const onChange = () => setReduceMotion(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+    fetch(HERO_META, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((meta) => {
+        if (!alive || !Array.isArray(meta)) return
+        const list = meta
+          .filter((m) => m?.file)
+          .map((m) => `/gallery/hero/${m.file}`)
+        setVideos(list)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const src = videos[index]
+  const showVideo = Boolean(src) && !videoFailed && !reduceMotion
+
+  useEffect(() => {
+    setVideoReady(false)
+    setVideoFailed(false)
+  }, [src])
+
+  // Advance to the next landscape reel when one ends (soft rotation).
+  function handleEnded() {
+    if (videos.length < 2) {
+      videoRef.current?.play()?.catch(() => {})
+      return
+    }
+    setIndex((i) => (i + 1) % videos.length)
+  }
+
   return (
     <section id="top" className="relative min-h-[100svh] w-full overflow-hidden">
-      {/* Background image with cinematic wash */}
       <motion.div
         className="absolute inset-0"
         initial={{ scale: 1.12 }}
@@ -16,17 +70,42 @@ export default function Hero() {
         transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
         style={{ transformOrigin: '50% 0%' }}
       >
+        {/* Still always underneath — shows while video loads / if video fails */}
         <img
-          src={heroImg}
+          src={HERO_POSTER}
           alt="A couple photographed at golden hour by BlinkSky Productions"
-          className="h-full w-full object-cover object-top"
+          className="absolute inset-0 h-full w-full object-cover object-top"
           fetchpriority="high"
         />
+
+        {showVideo && (
+          <video
+            key={src}
+            ref={videoRef}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
+              videoReady ? 'opacity-100' : 'opacity-0'
+            }`}
+            src={src}
+            poster={HERO_POSTER}
+            autoPlay
+            muted
+            playsInline
+            loop={videos.length < 2}
+            preload="metadata"
+            onCanPlay={() => {
+              setVideoReady(true)
+              videoRef.current?.play()?.catch(() => setVideoFailed(true))
+            }}
+            onEnded={handleEnded}
+            onError={() => setVideoFailed(true)}
+            aria-hidden="true"
+          />
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-b from-ink-950/70 via-ink-950/50 to-ink-950" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink-950/80 to-transparent" />
       </motion.div>
 
-      {/* Content */}
       <div className="container-x relative flex min-h-[100svh] flex-col justify-center pt-28 pb-16">
         <motion.div
           className="mb-6 flex items-center gap-3"
@@ -81,7 +160,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll cue */}
       <a
         href="#services"
         className="absolute bottom-6 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center animate-bounce text-cloud/50 transition-colors hover:text-champagne"
@@ -92,4 +170,3 @@ export default function Hero() {
     </section>
   )
 }
-

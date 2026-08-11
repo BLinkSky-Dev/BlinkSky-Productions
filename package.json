@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "gallery:download": "node scripts/download-ig-fallbacks.mjs",
-    "gallery:refresh": "node scripts/refresh-gallery-meta.mjs"
+    "gallery:refresh": "node scripts/refresh-gallery-meta.mjs",
+    "gallery:hero": "node scripts/download-hero-reels.mjs"
   },
   "dependencies": {
     "framer-motion": "^11.3.19",
