@@ -1,4 +1,4 @@
-import { Instagram, Camera } from 'lucide-react'
+﻿import { Instagram, Camera } from 'lucide-react'
 import Reveal from './Reveal'
 
 const stats = [
@@ -43,7 +43,7 @@ const brands = [
     description: 'Creative media production and digital content for brands that want to be seen.',
   },
   {
-    name: 'BlinkSky Saloon',
+    name: 'BlinkSky Salon',
     logo: '/logo-salon.png',
     logoBg: 'bg-white',
     description: 'Beauty and grooming studio where style meets precision.',
