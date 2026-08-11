@@ -61,6 +61,13 @@ const brands = [
     logoBg: 'bg-[#ECE5D3]',
     description: 'Jhumkas and jewellery traditional elegance, made to be worn and kept.',
   },
+  {
+    name: 'B.dev',
+    logo: '/logo-bdev.png',
+    logoBg: 'bg-white',
+    description:
+      'Transforming businesses for the digital age through innovative solutions, custom development, and strategic social media marketing.',
+  },
 ]
 
 function WhatsAppIcon({ size = 18 }) {
@@ -216,7 +223,7 @@ export default function About() {
               The BlinkSky brands
             </h2>
             <p className="mx-auto mt-4 max-w-md text-center leading-relaxed text-cloud/55">
-              Five brands, one standard of work.
+              Six brands, one standard of work.
             </p>
           </Reveal>
 
