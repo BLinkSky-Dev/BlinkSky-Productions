@@ -21,7 +21,7 @@ const socials = [
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen]         = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
@@ -70,7 +70,7 @@ export default function Nav() {
           }}
         />
         <nav className="container-x flex items-center justify-between">
-          <Logo size={scrolled ? 'sm' : 'md'} />
+          <Logo size="md" />
 
           <div className="hidden items-center gap-9 md:flex">
             {links.slice(0, 4).map((l) => (
@@ -113,6 +113,21 @@ export default function Nav() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
+            {/* Close button inside the overlay */}
+            <motion.button
+              onClick={() => setOpen(false)}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.15, duration: 0.3 }}
+              className="absolute right-5 top-5 z-10 flex h-12 w-12 items-center justify-center
+                         rounded-full border border-ink-600 text-cloud/70
+                         transition-colors active:scale-90 active:text-champagne cursor-pointer"
+              style={{ marginTop: 'env(safe-area-inset-top)' }}
+              aria-label="Close menu"
+            >
+              <X size={22} />
+            </motion.button>
+
             <nav
               className="flex flex-1 flex-col justify-center px-7"
               style={{ paddingTop: 'env(safe-area-inset-top)' }}

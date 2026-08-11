@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, MapPin, Instagram, Facebook, Check, Pencil } from 'lucide-react'
 import TikTok from './icons/TikTok'
@@ -53,7 +53,7 @@ export default function Contact() {
       await navigator.clipboard.writeText(buildMessage())
       setIgCopied(true)
     } catch {
-      /* clipboard blocked — the DM still opens, they can type it */
+      /* clipboard blocked â€” the DM still opens, they can type it */
     }
   }
 
@@ -72,33 +72,44 @@ export default function Contact() {
               Have a moment worth keeping? Let&apos;s talk.
             </h2>
             <p className="mt-6 max-w-md leading-relaxed text-cloud/65">
-              Tell us about your shoot, the date, the vibe, the story you want to
-              tell. We&apos;ll get back within 24 hours with availability and a
-              tailored quote.
+              Tell us about your shoot: the date, the setting, what you're after. We'll get back within 24 hours with availability and a quote.
             </p>
 
-            {/* Locations, shown explicitly */}
-            <div className="mt-6">
-              <p className="flex items-start gap-2.5 text-cloud/80">
+            {/* Branches */}
+            <div className="mt-6 space-y-3">
+              {/* Main branch */}
+              <div className="flex items-start gap-2.5">
                 <MapPin size={18} className="mt-0.5 shrink-0 text-champagne" />
-                <span>
-                  Studios in{' '}
-                  <span className="text-cloud">{STUDIO.locations.join(' · ')}</span>
-                </span>
-              </p>
-              <a
-                href={mapsLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-[30px] mt-1 inline-block text-sm text-cloud/55 underline-offset-4
-                           transition-colors hover:text-champagne hover:underline"
-              >
-                {STUDIO.address}
-              </a>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-cloud font-medium">Wattala</span>
+                    <span className="rounded-full bg-champagne/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-champagne">
+                      Main
+                    </span>
+                  </div>
+                  <a
+                    href={mapsLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-0.5 inline-block text-sm text-cloud/50 underline-offset-4
+                               transition-colors hover:text-champagne hover:underline"
+                  >
+                    {STUDIO.address}
+                  </a>
+                </div>
+              </div>
+
+              {/* Other branches */}
+              {['Dehiwela', 'Badulla', 'Bibila'].map((branch) => (
+                <div key={branch} className="flex items-center gap-2.5">
+                  <MapPin size={18} className="shrink-0 text-cloud/30" />
+                  <span className="text-cloud/65">{branch}</span>
+                </div>
+              ))}
             </div>
           </Reveal>
 
-          {/* Contact channels — icons; labels live in aria-label/title. */}
+          {/* Contact channels â€” icons; labels live in aria-label/title. */}
           <Reveal delay={0.1}>
             <ul className="mt-6 flex flex-wrap gap-3">
               {[
@@ -142,7 +153,7 @@ export default function Contact() {
           </Reveal>
         </div>
 
-        {/* Right: form → channel picker */}
+        {/* Right: form â†’ channel picker */}
         <Reveal delay={0.1}>
           <div className="rounded-3xl border border-ink-700 bg-ink-900/50 p-6 sm:p-8">
             {!ready ? (
@@ -279,7 +290,7 @@ export default function Contact() {
 
                   {igCopied && (
                     <p className="mt-3 flex items-center gap-1.5 text-xs text-[#25D366]">
-                      <Check size={13} /> Message copied — paste it into the Instagram
+                      <Check size={13} /> Message copied â€” paste it into the Instagram
                       chat.
                     </p>
                   )}
@@ -299,3 +310,5 @@ export default function Contact() {
     </section>
   )
 }
+
+

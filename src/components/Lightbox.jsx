@@ -93,13 +93,31 @@ export default function Lightbox({ items, index, onClose, onNav }) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <span className="relative block">
-              <img
-                src={item.src}
-                alt={item.title || ''}
-                draggable={false}
-                className="max-h-[78vh] w-auto select-none rounded-lg object-contain"
-              />
+            <span
+              className="relative block"
+              onContextMenu={(e) => e.preventDefault()}
+            >
+              {item.videoSrc ? (
+                <video
+                  key={item.id}
+                  src={item.videoSrc}
+                  poster={item.src}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  disablePictureInPicture
+                  controlsList="nodownload nofullscreen noremoteplayback"
+                  className="max-h-[78vh] w-auto select-none rounded-lg object-contain pointer-events-none"
+                />
+              ) : (
+                <img
+                  src={item.src}
+                  alt={item.title || ''}
+                  draggable={false}
+                  className="max-h-[78vh] w-auto select-none rounded-lg object-contain"
+                />
+              )}
               <Watermark size="lg" />
             </span>
             {(item.title || item.categoryLabel) && (

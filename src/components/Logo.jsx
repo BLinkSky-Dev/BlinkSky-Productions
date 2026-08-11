@@ -1,8 +1,8 @@
 // Landscape wordmark used in the header and footer.
 // Files live in /public: logo-landscape.png (wide) and logo-portrait.png (square).
 const sizes = {
-  sm: 'h-11 md:h-11',
-  md: 'h-12 md:h-14',
+  sm: 'h-12 md:h-12',
+  md: 'h-14 md:h-16',
   lg: 'h-16 md:h-20',
 }
 
