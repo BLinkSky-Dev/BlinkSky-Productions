@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Instagram, Play } from 'lucide-react'
+import { Instagram, ExternalLink, Play } from 'lucide-react'
 import { useInstagramFeed } from '../hooks/useInstagramFeed'
 import SectionHeading from './SectionHeading'
 import Watermark from './Watermark'
