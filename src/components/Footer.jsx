@@ -1,4 +1,4 @@
-import { Instagram, Facebook } from 'lucide-react'
+import { Instagram, Facebook, Youtube } from 'lucide-react'
 import TikTok from './icons/TikTok'
 import Logo from './Logo'
 import { studio, developer, developerWhatsappLink } from '../data/socials'
@@ -15,6 +15,7 @@ const socials = [
   { icon: Instagram, href: studio.instagram, label: 'Instagram' },
   { icon: Facebook, href: studio.facebook, label: 'Facebook' },
   { icon: TikTok, href: studio.tiktok, label: 'TikTok' },
+  { icon: Youtube, href: studio.youtube, label: 'YouTube' },
 ]
 
 export default function Footer() {
