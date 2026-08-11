@@ -23,7 +23,7 @@ export const GALLERY = {
 export async function loadLocalPosts(folder, limit = 12) {
   const base = `/gallery/${folder}`
   try {
-    const res = await fetch(`${base}/meta.json`, { cache: 'no-store' })
+    const res = await fetch(`${base}/meta.json`)
     if (!res.ok) return []
     const meta = await res.json()
     if (!Array.isArray(meta) || !meta.length) return []

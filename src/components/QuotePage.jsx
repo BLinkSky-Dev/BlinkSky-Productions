@@ -61,31 +61,52 @@ function Toggle({ on, onClick }) {
       onClick={onClick}
       aria-checked={on}
       role="switch"
-      className={`relative h-8 w-14 flex-shrink-0 rounded-full transition-colors duration-300 cursor-pointer
+      className={`relative h-8 w-14 shrink-0 rounded-full p-1 transition-colors duration-300 cursor-pointer
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne
+                  focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950
                   ${on ? 'bg-champagne' : 'bg-ink-700'}`}
     >
-      <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-transform duration-300
-                        ${on ? 'translate-x-7' : 'translate-x-1'}`} />
+      <motion.span
+        className="block h-6 w-6 rounded-full bg-white shadow-md"
+        animate={{ x: on ? 24 : 0 }}
+        transition={{ type: 'spring', stiffness: 520, damping: 34 }}
+      />
     </button>
   )
 }
 
-function Chip({ on, onClick, children }) {
+function Chip({ on, onClick, children, radio = false }) {
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      role={radio ? 'radio' : 'checkbox'}
+      aria-checked={on}
+      whileTap={{ scale: 0.96 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 28 }}
       className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-2 text-sm
-                  transition-all duration-200 cursor-pointer
+                  transition-colors duration-200 cursor-pointer
                   focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne
                   ${on
-                    ? 'border-champagne bg-champagne/10 text-champagne font-medium'
-                    : 'border-ink-600 text-cloud/65 hover:border-champagne/50 hover:text-cloud'}`}
+                    ? 'border-champagne bg-champagne text-ink-950 font-medium shadow-[0_0_22px_rgba(212,175,55,0.28)]'
+                    : 'border-ink-600 bg-ink-900/50 text-cloud/65 hover:border-champagne/50 hover:text-cloud'}`}
     >
-      {on && <Check size={12} className="flex-shrink-0" />}
+      <AnimatePresence initial={false}>
+        {on && (
+          <motion.span
+            key="check"
+            initial={{ scale: 0, opacity: 0, width: 0 }}
+            animate={{ scale: 1, opacity: 1, width: 'auto' }}
+            exit={{ scale: 0, opacity: 0, width: 0 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <Check size={12} className="shrink-0" strokeWidth={2.5} />
+          </motion.span>
+        )}
+      </AnimatePresence>
       {children}
-    </button>
+    </motion.button>
   )
 }
 
@@ -126,8 +147,8 @@ function PkgCard({ selected, onClick, name, price, sub, items }) {
 
 function totalSteps(type) {
   if (!type)                      return 1
-  if (type === 'Wedding Shoots')  return 5
-  if (type === 'Commercial Shoots') return 3
+  if (type === 'Wedding Photography')  return 5
+  if (type === 'Commercial Photography & Events') return 3
   return 4
 }
 
@@ -147,10 +168,10 @@ const STEP_TITLES = {
 
 function stepTitle(type, step) {
   if (step === 1) return STEP_TITLES[1]
-  if (type === 'Wedding Shoots')     return STEP_TITLES.wedding[step] ?? ''
-  if (type === 'Commercial Shoots')  return STEP_TITLES.commercial[step] ?? ''
-  if (type === 'Bridal Shoots' || type === 'Model Shoots') return STEP_TITLES.bridal[step] ?? ''
-  if (type === 'Birthday Shoots')    return STEP_TITLES.birthday[step] ?? ''
+  if (type === 'Wedding Photography')     return STEP_TITLES.wedding[step] ?? ''
+  if (type === 'Commercial Photography & Events')  return STEP_TITLES.commercial[step] ?? ''
+  if (type === 'Bridal Portraits' || type === 'Model Photography') return STEP_TITLES.bridal[step] ?? ''
+  if (type === 'Birthday Photography')    return STEP_TITLES.birthday[step] ?? ''
   if (type === 'Graduation Portraits') return STEP_TITLES.grad[step] ?? ''
   return ''
 }
@@ -202,13 +223,13 @@ export default function QuotePage() {
   const canContinue = useMemo(() => {
     if (step === 1) return !!data.shootType
     const t = data.shootType
-    if (t === 'Wedding Shoots') {
+    if (t === 'Wedding Photography') {
       if (step === 2) return !!data.weddingCulture && data.weddingEvents.length > 0
       if (step === 3) return data.hasPhoto || data.hasVideo
       if (step === 4) return !!data.location && !!data.date
       if (step === 5) return !!data.name && !!data.email
     }
-    if (t === 'Commercial Shoots') {
+    if (t === 'Commercial Photography & Events') {
       if (step === 2) return !!data.commercialBrief.trim()
       return true
     }
@@ -232,7 +253,7 @@ export default function QuotePage() {
     if (data.package)   L.push(`Package: ${data.package}`)
     if (data.location)  L.push(`Location: ${data.location}`)
     if (data.date)      L.push(`Date: ${data.date}`)
-    if (data.budget && data.shootType === 'Wedding Shoots') L.push(`Budget: ${lkr(data.budget)}`)
+    if (data.budget && data.shootType === 'Wedding Photography') L.push(`Budget: ${lkr(data.budget)}`)
     if (data.name)  L.push(`\nName: ${data.name}`)
     if (data.email) L.push(`Email: ${data.email}`)
     if (data.phone) L.push(`Phone: ${data.phone}`)
@@ -247,8 +268,8 @@ export default function QuotePage() {
   }
 
   const isContact = (
-    (step === 5 && data.shootType === 'Wedding Shoots') ||
-    (step === 4 && data.shootType !== 'Wedding Shoots' && data.shootType !== 'Commercial Shoots')
+    (step === 5 && data.shootType === 'Wedding Photography') ||
+    (step === 4 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Commercial Photography & Events')
   )
 
   return (
@@ -376,7 +397,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Wedding — Step 2: Culture + events ════════════════════════ */}
-              {step === 2 && data.shootType === 'Wedding Shoots' && (
+              {step === 2 && data.shootType === 'Wedding Photography' && (
                 <div className="grid gap-8 lg:grid-cols-2">
                   <div>
                     <p className="mb-4 font-serif text-xl text-cloud">Wedding type</p>
@@ -416,7 +437,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Wedding — Step 3: Photo + Video coverage ══════════════════ */}
-              {step === 3 && data.shootType === 'Wedding Shoots' && (
+              {step === 3 && data.shootType === 'Wedding Photography' && (
                 <div className="space-y-5 max-w-3xl">
                   {/* Photography */}
                   <div className={`rounded-2xl border p-6 transition-all duration-300
@@ -428,16 +449,27 @@ export default function QuotePage() {
                       </div>
                       <Toggle on={data.hasPhoto} onClick={() => set('hasPhoto', !data.hasPhoto)} />
                     </div>
-                    {data.hasPhoto && (
-                      <div className="mt-5 border-t border-champagne/20 pt-5">
-                        <p className="mb-3 text-sm font-medium text-cloud/65">Album size</p>
-                        <div className="flex flex-wrap gap-2">
-                          {ALBUM_SIZES.map((sz) => (
-                            <Chip key={sz} on={data.albumSizes.includes(sz)} onClick={() => toggle('albumSizes', sz)}>{sz}</Chip>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {data.hasPhoto && (
+                        <motion.div
+                          key="photo-opts"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-5 border-t border-champagne/20 pt-5">
+                            <p className="mb-3 text-sm font-medium text-cloud/65">Album size</p>
+                            <div className="flex flex-wrap gap-2" role="group" aria-label="Album size">
+                              {ALBUM_SIZES.map((sz) => (
+                                <Chip key={sz} on={data.albumSizes.includes(sz)} onClick={() => toggle('albumSizes', sz)}>{sz}</Chip>
+                              ))}
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Videography */}
@@ -450,32 +482,43 @@ export default function QuotePage() {
                       </div>
                       <Toggle on={data.hasVideo} onClick={() => set('hasVideo', !data.hasVideo)} />
                     </div>
-                    {data.hasVideo && (
-                      <div className="mt-5 space-y-5 border-t border-champagne/20 pt-5">
-                        <div>
-                          <p className="mb-3 text-sm font-medium text-cloud/65">Cameras</p>
-                          <div className="flex flex-wrap gap-2">
-                            {CAMERA_COUNTS.map((c) => (
-                              <Chip key={c} on={data.cameraCount === c} onClick={() => set('cameraCount', c)}>{c}</Chip>
-                            ))}
+                    <AnimatePresence initial={false}>
+                      {data.hasVideo && (
+                        <motion.div
+                          key="video-opts"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-5 space-y-5 border-t border-champagne/20 pt-5">
+                            <div>
+                              <p className="mb-3 text-sm font-medium text-cloud/65">Cameras</p>
+                              <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Cameras">
+                                {CAMERA_COUNTS.map((c) => (
+                                  <Chip key={c} radio on={data.cameraCount === c} onClick={() => set('cameraCount', c)}>{c}</Chip>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="mb-3 text-sm font-medium text-cloud/65">Video packages</p>
+                              <div className="flex flex-wrap gap-2" role="group" aria-label="Video packages">
+                                {VIDEO_TYPES.map((vt) => (
+                                  <Chip key={vt} on={data.videoTypes.includes(vt)} onClick={() => toggle('videoTypes', vt)}>{vt}</Chip>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                        <div>
-                          <p className="mb-3 text-sm font-medium text-cloud/65">Video packages</p>
-                          <div className="flex flex-wrap gap-2">
-                            {VIDEO_TYPES.map((vt) => (
-                              <Chip key={vt} on={data.videoTypes.includes(vt)} onClick={() => toggle('videoTypes', vt)}>{vt}</Chip>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               )}
 
               {/* ══ Wedding — Step 4: Enlargements + location + date + budget ═ */}
-              {step === 4 && data.shootType === 'Wedding Shoots' && (
+              {step === 4 && data.shootType === 'Wedding Photography' && (
                 <div className="grid gap-8 lg:grid-cols-2">
                   {/* Left */}
                   <div className="space-y-6">
@@ -489,30 +532,41 @@ export default function QuotePage() {
                         </div>
                         <Toggle on={data.hasEnlargements} onClick={() => set('hasEnlargements', !data.hasEnlargements)} />
                       </div>
-                      {data.hasEnlargements && (
-                        <div className="mt-5 space-y-4 border-t border-champagne/20 pt-5">
-                          <div>
-                            <label className="mb-2 block text-sm text-cloud/65">How many?</label>
-                            <input
-                              type="number"
-                              min="1"
-                              value={data.enlargementCount}
-                              onChange={(e) => set('enlargementCount', e.target.value)}
-                              placeholder="e.g. 3"
-                              className="w-28 rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cloud
-                                         placeholder:text-cloud/35 focus:border-champagne focus:outline-none focus:ring-1 focus:ring-champagne"
-                            />
-                          </div>
-                          <div>
-                            <p className="mb-2 text-sm text-cloud/65">Sizes</p>
-                            <div className="flex flex-wrap gap-2">
-                              {ENL_SIZES.map((sz) => (
-                                <Chip key={sz} on={data.enlargementSizes.includes(sz)} onClick={() => toggle('enlargementSizes', sz)}>{sz}</Chip>
-                              ))}
+                      <AnimatePresence initial={false}>
+                        {data.hasEnlargements && (
+                          <motion.div
+                            key="enl-opts"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-5 space-y-4 border-t border-champagne/20 pt-5">
+                              <div>
+                                <label className="mb-2 block text-sm text-cloud/65">How many?</label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={data.enlargementCount}
+                                  onChange={(e) => set('enlargementCount', e.target.value)}
+                                  placeholder="e.g. 3"
+                                  className="w-28 rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cloud
+                                             placeholder:text-cloud/35 focus:border-champagne focus:outline-none focus:ring-1 focus:ring-champagne"
+                                />
+                              </div>
+                              <div>
+                                <p className="mb-2 text-sm text-cloud/65">Sizes</p>
+                                <div className="flex flex-wrap gap-2" role="group" aria-label="Enlargement sizes">
+                                  {ENL_SIZES.map((sz) => (
+                                    <Chip key={sz} on={data.enlargementSizes.includes(sz)} onClick={() => toggle('enlargementSizes', sz)}>{sz}</Chip>
+                                  ))}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      )}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     {/* Location */}
@@ -568,7 +622,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Bridal / Model — Step 2: Packages ════════════════════════ */}
-              {step === 2 && (data.shootType === 'Bridal Shoots' || data.shootType === 'Model Shoots') && (
+              {step === 2 && (data.shootType === 'Bridal Portraits' || data.shootType === 'Model Photography') && (
                 <div>
                   <p className="mb-5 text-cloud/50">30–90 sec reel included with every package.</p>
                   <div className="grid gap-4 sm:grid-cols-3">
@@ -590,7 +644,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Birthday — Step 2: Packages ═══════════════════════════════ */}
-              {step === 2 && data.shootType === 'Birthday Shoots' && (
+              {step === 2 && data.shootType === 'Birthday Photography' && (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {BIRTHDAY_PKGS.map((p) => {
                     const label = `${p.name} — ${lkr(p.price)}`
@@ -628,7 +682,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Commercial — Step 2: Project brief ════════════════════════ */}
-              {step === 2 && data.shootType === 'Commercial Shoots' && (
+              {step === 2 && data.shootType === 'Commercial Photography & Events' && (
                 <div className="max-w-2xl space-y-6">
                   <div>
                     <label className="mb-2 block font-serif text-xl text-cloud">
@@ -665,7 +719,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Commercial — Step 3: Contact details ══════════════════════ */}
-              {step === 3 && data.shootType === 'Commercial Shoots' && (
+              {step === 3 && data.shootType === 'Commercial Photography & Events' && (
                 <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                   {/* Contact info */}
                   <div>
@@ -735,7 +789,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Shared Step 3 (non-wedding): Date + location ═════════════ */}
-              {step === 3 && data.shootType !== 'Wedding Shoots' && data.shootType !== 'Commercial Shoots' && (
+              {step === 3 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Commercial Photography & Events' && (
                 <div className="grid max-w-xl gap-6 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block font-serif text-xl text-cloud">
@@ -819,7 +873,7 @@ export default function QuotePage() {
                         data.package        ? ['Package',     data.package] : null,
                         data.location       ? ['Location',    data.location] : null,
                         data.date           ? ['Date',        data.date] : null,
-                        data.budget && data.shootType === 'Wedding Shoots' ? ['Budget', lkr(data.budget)] : null,
+                        data.budget && data.shootType === 'Wedding Photography' ? ['Budget', lkr(data.budget)] : null,
                       ].filter(Boolean).map(([k, v]) => (
                         <div key={k} className="flex gap-3">
                           <dt className="w-28 flex-shrink-0 text-cloud/40">{k}</dt>
