@@ -9,19 +9,19 @@ import SectionHeading from './SectionHeading'
  * Image-first by design: for a photo studio the work has to do the selling, so
  * each service is a full-bleed frame with the title over it. Hovering (or
  * keyboard-focusing) zooms the image, deepens the gradient and slides the copy
- * and tags up. Every tile links to the contact section, so the section doubles
- * as eight entry points into an enquiry.
+ * and tags up.
  *
- * Tile sizes vary to create rhythm; `grid-flow-dense` backfills any gaps so the
- * mosaic stays solid no matter how the spans are tweaked.
+ * Layout is the same mosaic at every breakpoint (4 columns):
+ *   Row 1: Wedding (2) · Bridal (1) · Model (1)
+ *   Row 2: Birthday (1) · Commercial (2) · Graduation (1)
  */
 const SPAN = {
-  wedding:    'lg:col-span-2 lg:row-span-2',
-  bridal:     'lg:row-span-2',
-  model:      'lg:row-span-2',
-  commercial: 'lg:col-span-2 lg:row-span-2',
-  birthday:   'lg:row-span-2',
-  graduation: 'lg:row-span-2',
+  wedding:    'col-span-2 row-span-2',
+  bridal:     'row-span-2',
+  model:      'row-span-2',
+  commercial: 'col-span-2 row-span-2',
+  birthday:   'row-span-2',
+  graduation: 'row-span-2',
 }
 
 export default function Services() {
@@ -38,9 +38,10 @@ export default function Services() {
         />
 
         <div
-          className="mt-14 grid auto-rows-[310px] grid-cols-1 gap-3 sm:grid-cols-2
-                     sm:auto-rows-[280px] lg:grid-cols-4 lg:auto-rows-[195px]
-                     lg:grid-flow-dense md:gap-4"
+          className="mt-14 grid grid-cols-4 grid-flow-dense gap-2
+                     auto-rows-[88px] sm:auto-rows-[130px] sm:gap-3
+                     md:auto-rows-[160px] md:gap-4
+                     lg:auto-rows-[195px]"
         >
           {services.map((s, i) => {
             const Icon = s.icon
@@ -64,9 +65,9 @@ export default function Services() {
                 animate="rest"
                 whileHover="hov"
                 onClick={() => setExpandedId(isExpanded ? null : s.id)}
-                className="group relative flex h-full w-full overflow-hidden rounded-2xl bg-ink-800
+                className="group relative flex h-full w-full overflow-hidden rounded-xl bg-ink-800
                            ring-1 ring-ink-700 transition-all duration-500 ease-smooth
-                           hover:ring-champagne/60 cursor-pointer lg:cursor-default"
+                           hover:ring-champagne/60 cursor-pointer sm:rounded-2xl lg:cursor-default"
               >
                 {/* Photograph, zoom driven by Framer so it can't be lost to a
                     CSS transform-composition quirk. */}
@@ -88,50 +89,51 @@ export default function Services() {
                 />
 
                 {/* Index + icon */}
-                <div className="absolute left-5 top-5 flex items-center gap-2.5">
-                  <span className="font-sans text-[11px] tabular-nums tracking-widest text-cloud/60">
+                <div className="absolute left-2.5 top-2.5 flex items-center gap-1.5 sm:left-4 sm:top-4 sm:gap-2 md:left-5 md:top-5 md:gap-2.5">
+                  <span className="font-sans text-[9px] tabular-nums tracking-widest text-cloud/60 sm:text-[11px]">
                     {String(i + 1).padStart(2, '0')}
                   </span>
                   <Icon
-                    size={17}
+                    size={14}
                     strokeWidth={1.5}
-                    className="text-champagne transition-transform duration-500 group-hover:scale-110"
+                    className="text-champagne transition-transform duration-500 group-hover:scale-110 sm:h-[17px] sm:w-[17px]"
                   />
                 </div>
 
 
                 {/* Title + reveal */}
-                <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
+                <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-4 md:p-5 lg:p-6">
                   <h3
-                    className="font-serif text-2xl leading-tight text-cloud transition-colors
-                               duration-300 group-hover:text-champagne md:text-[1.7rem]"
+                    className="font-serif text-[0.8rem] leading-tight text-cloud transition-colors
+                               duration-300 group-hover:text-champagne
+                               sm:text-lg md:text-[1.7rem]"
                   >
                     {s.title}
                   </h3>
 
                   {/* champagne rule grows on hover */}
-                  <span className="mt-2.5 block h-px w-8 bg-champagne transition-all duration-500 ease-smooth group-hover:w-16" />
+                  <span className="mt-1.5 block h-px w-5 bg-champagne transition-all duration-500 ease-smooth group-hover:w-10 sm:mt-2.5 sm:w-8 sm:group-hover:w-16" />
 
                   {/* Mobile: hidden by default, shown on tap via expandedId state.
                       Desktop: hidden until hovered/focused. */}
                   <div
                     className={`grid transition-all duration-500 ease-smooth
-                      ${isExpanded ? 'mt-3 grid-rows-[1fr] opacity-100' : 'mt-0 grid-rows-[0fr] opacity-0'}
+                      ${isExpanded ? 'mt-2 grid-rows-[1fr] opacity-100' : 'mt-0 grid-rows-[0fr] opacity-0'}
                       lg:mt-0 lg:grid-rows-[0fr] lg:opacity-0
                       lg:group-hover:mt-3 lg:group-hover:grid-rows-[1fr] lg:group-hover:opacity-100
                       lg:group-focus-visible:mt-3 lg:group-focus-visible:grid-rows-[1fr]
                       lg:group-focus-visible:opacity-100`}
                   >
                     <div className="overflow-hidden">
-                      <p className="text-sm leading-relaxed text-cloud/80 line-clamp-3">
+                      <p className="text-[11px] leading-relaxed text-cloud/80 line-clamp-2 sm:text-sm sm:line-clamp-3">
                         {s.blurb}
                       </p>
-                      <ul className="mt-3 flex flex-wrap gap-2">
+                      <ul className="mt-2 flex flex-wrap gap-1.5 sm:mt-3 sm:gap-2">
                         {s.tags.map((t) => (
                           <li
                             key={t}
-                            className="rounded-full border border-cloud/25 bg-ink-950/50 px-2.5 py-1
-                                       text-[11px] text-cloud/85 backdrop-blur-sm"
+                            className="rounded-full border border-cloud/25 bg-ink-950/50 px-2 py-0.5
+                                       text-[10px] text-cloud/85 backdrop-blur-sm sm:px-2.5 sm:py-1 sm:text-[11px]"
                           >
                             {t}
                           </li>
