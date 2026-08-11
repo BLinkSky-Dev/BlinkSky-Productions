@@ -71,7 +71,7 @@ export default function Nav() {
           }}
         />
         <nav className="container-x flex items-center justify-between">
-          <Logo size="md" />
+          <Logo size="md" className="-translate-x-8 sm:-translate-x-4 md:translate-x-0" />
 
           <div className="hidden items-center gap-9 md:flex">
             {links.slice(0, 4).map((l) => (

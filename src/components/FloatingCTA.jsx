@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CalendarCheck, Mail } from 'lucide-react'
+import { CalendarCheck } from 'lucide-react'
 import { whatsappLink } from '../data/socials'
 
 /** WhatsApp glyph, lucide has no brand icons. */
@@ -12,6 +12,10 @@ function WhatsAppIcon({ size = 22, className = '' }) {
   )
 }
 
+/**
+ * Floating CTAs (all breakpoints): WhatsApp always, Get Quote after scrolling
+ * past the hero — same pattern on phone and desktop.
+ */
 export default function FloatingCTA() {
   const [past, setPast] = useState(false)
 
@@ -25,70 +29,41 @@ export default function FloatingCTA() {
   const wa = whatsappLink()
 
   return (
-    <>
-      {/* ── Desktop / tablet: floating stack, bottom-right ─────────────── */}
-      <div className="pointer-events-none fixed bottom-6 right-6 z-40 hidden flex-col items-end gap-3 sm:flex">
-        <AnimatePresence>
-          {past && (
-            <motion.a
-              key="book"
-              href="#quote"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 12 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-champagne px-5 py-3
-                         text-sm font-medium text-ink-950 shadow-xl shadow-black/30 transition-all duration-300
-                         hover:bg-champagne-light hover:-translate-y-0.5 cursor-pointer"
-            >
-              <CalendarCheck size={17} /> Get Quote
-            </motion.a>
-          )}
-        </AnimatePresence>
+    <div
+      className="pointer-events-none fixed bottom-5 right-4 z-40 flex flex-col items-end gap-3
+                 sm:bottom-6 sm:right-6"
+      style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+    >
+      <AnimatePresence>
+        {past && (
+          <motion.a
+            key="book"
+            href="#quote"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-champagne px-4 py-2.5
+                       text-sm font-medium text-ink-950 shadow-xl shadow-black/30 transition-all duration-300
+                       hover:bg-champagne-light hover:-translate-y-0.5 active:scale-95 cursor-pointer
+                       sm:px-5 sm:py-3"
+          >
+            <CalendarCheck size={17} /> Get Quote
+          </motion.a>
+        )}
+      </AnimatePresence>
 
-        <a
-          href={wa}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat with BlinkSky on WhatsApp"
-          className="pointer-events-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366]
-                     text-white shadow-xl shadow-black/30 transition-transform duration-300
-                     hover:scale-110 cursor-pointer"
-        >
-          <WhatsAppIcon size={26} />
-        </a>
-      </div>
-
-      {/* ── Mobile: sticky action bar ──────────────────────────────────── */}
-      <div
-        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch gap-2 border-t border-ink-700
-                   bg-ink-950/95 px-3 py-2.5 backdrop-blur-md sm:hidden"
-        style={{ paddingBottom: 'calc(0.625rem + env(safe-area-inset-bottom))' }}
+      <a
+        href={wa}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with BlinkSky on WhatsApp"
+        className="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366]
+                   text-white shadow-xl shadow-black/30 transition-transform duration-300
+                   hover:scale-110 active:scale-95 cursor-pointer sm:h-14 sm:w-14"
       >
-        <a
-          href={wa}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Chat on WhatsApp"
-          className="flex h-12 w-14 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white"
-        >
-          <WhatsAppIcon size={24} />
-        </a>
-        <a
-          href="#quote"
-          className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-champagne
-                     text-sm font-semibold text-ink-950"
-        >
-          <CalendarCheck size={17} /> Get Quote
-        </a>
-        <a
-          href="#contact"
-          aria-label="Contact us"
-          className="flex h-12 w-14 shrink-0 items-center justify-center rounded-xl border border-champagne/50 text-champagne"
-        >
-          <Mail size={19} />
-        </a>
-      </div>
-    </>
+        <WhatsAppIcon size={26} />
+      </a>
+    </div>
   )
 }
