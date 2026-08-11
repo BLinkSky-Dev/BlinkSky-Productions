@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Instagram, ExternalLink, Play } from 'lucide-react'
+import { Instagram, Play } from 'lucide-react'
 import { useInstagramFeed } from '../hooks/useInstagramFeed'
 import SectionHeading from './SectionHeading'
 import Watermark from './Watermark'
@@ -180,13 +180,7 @@ export default function InstagramFeed() {
           </div>
         </Reveal>
 
-        {status === 'fallback' && (
-          <p className="mt-6 flex items-center gap-2 text-xs text-cloud/40">
-            <ExternalLink size={13} />
-            Showing saved studio shots. Connect the Instagram Graph API (see README) to
-            display live posts from @{IG_HANDLE}.
-          </p>
-        )}
+        
       </div>
     </section>
   )

@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, MapPin, Instagram, Facebook, Youtube, Check, Pencil } from 'lucide-react'
+import { Mail, MapPin, Instagram, Facebook, Youtube, Phone, Check, Pencil } from 'lucide-react'
 import TikTok from './icons/TikTok'
 import Reveal from './Reveal'
 import { services } from '../data/services'
@@ -114,6 +114,11 @@ export default function Contact() {
             <ul className="mt-6 flex flex-wrap gap-3">
               {[
                 { icon: Mail, href: `mailto:${STUDIO.email}`, label: STUDIO.email },
+                {
+                  icon: Phone,
+                  href: `tel:${STUDIO.phone.replace(/\s/g, '')}`,
+                  label: `Call ${STUDIO.phone}`,
+                },
                 {
                   icon: Instagram,
                   href: STUDIO.instagram,

@@ -159,11 +159,6 @@ export default function Portfolio() {
               </AnimatePresence>
             </motion.div>
 
-            {status === 'fallback' && (
-              <p className="mt-6 text-center text-xs text-cloud/30">
-                Showing saved Selected Work. Live Instagram will appear when the API is connected.
-              </p>
-            )}
           </>
         )}
 

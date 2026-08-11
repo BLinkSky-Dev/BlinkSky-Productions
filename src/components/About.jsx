@@ -1,5 +1,6 @@
-﻿import { Instagram, Camera } from 'lucide-react'
+﻿import { Instagram, Camera, Phone } from 'lucide-react'
 import Reveal from './Reveal'
+import { studio } from '../data/socials'
 
 const stats = [
   { value: '2+', label: 'Years Behind the Lens' },
@@ -112,34 +113,36 @@ export default function About() {
           </div>
         </div>
 
-        {/* Founder — editorial split layout */}
+        {/* Founder — open editorial split */}
         <div className="mt-24">
           <Reveal>
             <p className="eyebrow mb-10 text-center">The Founder</p>
           </Reveal>
-          <Reveal delay={0.05}>
-            <div className="overflow-hidden rounded-2xl border border-ink-700 lg:grid lg:grid-cols-[4fr_8fr]">
 
-              {/* Portrait photo */}
-              <div className="relative aspect-[3/4] lg:aspect-auto">
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
+            {/* Portrait */}
+            <Reveal>
+              <div className="relative mx-auto aspect-[3/4] w-full max-w-[14rem] overflow-hidden rounded-2xl sm:max-w-[16rem] lg:mx-0 lg:max-w-none">
                 <img
                   src={founder.photo}
                   alt={founder.name}
                   className="h-full w-full object-cover object-top"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-ink-950/10 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-ink-950/30" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/50 via-transparent to-transparent" />
               </div>
+            </Reveal>
 
-              {/* Details */}
-              <div className="flex flex-col justify-center bg-ink-900/70 px-8 py-10 sm:px-10 lg:px-14 lg:py-12">
+            {/* Details */}
+            <Reveal delay={0.08}>
+              <div className="text-center lg:text-left">
                 <h3 className="font-serif text-4xl leading-tight text-cloud sm:text-5xl">
                   {founder.name}
                 </h3>
-                <span className="mt-3 inline-block w-fit rounded-full bg-champagne/15 px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-champagne">
+                <span className="mt-3 inline-block rounded-full bg-champagne/15 px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-champagne">
                   {founder.title}
                 </span>
 
-                <span className="mt-7 block h-px w-10 bg-champagne/50" />
+                <span className="mx-auto mt-7 block h-px w-10 bg-champagne/50 lg:mx-0" />
 
                 <p className="mt-5 leading-relaxed text-cloud/65">
                   {founder.bio1}
@@ -148,22 +151,31 @@ export default function About() {
                   {founder.bio2}
                 </p>
 
-                {/* Specialties */}
-                <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-2">
+                <div className="mt-6 grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-6">
                   {founder.specialties.map((s) => (
-                    <div key={s} className="flex items-center gap-2 text-sm text-cloud/55">
+                    <div
+                      key={s}
+                      className="flex items-center justify-center gap-2 text-sm text-cloud/55 lg:justify-start"
+                    >
                       <span className="h-1 w-1 flex-shrink-0 rounded-full bg-champagne/60" />
                       {s}
                     </div>
                   ))}
                 </div>
 
-                {/* Tagline */}
                 <p className="mt-6 font-serif text-lg italic text-champagne/80">
                   "{founder.tagline}"
                 </p>
 
-                <div className="mt-6 flex items-center gap-3">
+                <div className="mt-6 flex items-center justify-center gap-3 lg:justify-start">
+                  <a
+                    href={`tel:${studio.phone.replace(/\s/g, '')}`}
+                    aria-label={`Call ${founder.name} at ${studio.phone}`}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
+                               text-cloud/60 transition-all hover:border-champagne hover:text-champagne"
+                  >
+                    <Phone size={17} />
+                  </a>
                   <a
                     href={founder.instagram}
                     target="_blank"
@@ -186,9 +198,8 @@ export default function About() {
                   </a>
                 </div>
               </div>
-
-            </div>
-          </Reveal>
+            </Reveal>
+          </div>
         </div>
 
         {/* Our Brands */}
