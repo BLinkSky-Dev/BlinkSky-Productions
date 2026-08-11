@@ -183,7 +183,7 @@ export default function InstagramFeed() {
         {status === 'fallback' && (
           <p className="mt-6 flex items-center gap-2 text-xs text-cloud/40">
             <ExternalLink size={13} />
-            Showing sample images. Connect the Instagram Graph API (see README) to
+            Showing saved studio shots. Connect the Instagram Graph API (see README) to
             display live posts from @{IG_HANDLE}.
           </p>
         )}

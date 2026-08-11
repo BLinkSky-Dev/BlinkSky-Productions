@@ -1,74 +1,30 @@
 import { useEffect, useState } from 'react'
 import { categorise } from '../data/instagramCategories'
+import { GALLERY, loadLocalPosts } from '../data/localGalleries'
 
 /**
- * useInstagramFeed, fetches recent media from the Instagram Graph API.
+ * useInstagramFeed — fetches media from the Instagram Graph API.
  *
- * SETUP (see README.md "Instagram Graph API" section for full walkthrough):
- *   1. Convert the IG account to a Business/Creator account and link it to a
- *      Facebook Page.
- *   2. Create a Meta app, add the "Instagram Graph API" product, and generate a
- *      long-lived access token + your IG user id.
- *   3. Put them in a `.env` file at the project root:
+ * Options:
+ *   limit   — how many posts to return (default 12)
+ *   sortBy  — 'recent' (default) | 'engagement'
+ *             'engagement' fetches 50 posts, sorts by likes+comments, returns top `limit`
+ *
+ * SETUP:
+ *   1. Convert IG account to Business/Creator and link to a Facebook Page.
+ *   2. Create a Meta app, add Instagram Graph API, generate a long-lived token + user id.
+ *   3. Add to .env:
  *          VITE_IG_ACCESS_TOKEN=your_long_lived_token
- *          VITE_IG_USER_ID=1784xxxxxxxxxxx
+ *          VITE_IG_USER_ID=17841xxxxxxxxxx
  *   4. Restart `npm run dev`.
  *
- * If no token is present (or the request fails), the hook returns
- * `usingFallback: true` and the component shows curated placeholder tiles so the
- * section never looks broken.
- *
- * SECURITY NOTE: a token embedded in a VITE_ variable ships to the browser.
- * That is acceptable for a low-risk, read-only display token, but the more
- * robust production pattern is a tiny serverless proxy (see README) that keeps
- * the token server-side. This hook supports both: point VITE_IG_PROXY_URL at
- * your proxy and it will be used instead of calling Graph API directly.
+ * When the API is missing or fails, loads saved images from:
+ *   public/gallery/selected-work/  (sortBy: 'engagement')
+ *   public/gallery/instagram/      (sortBy: 'recent')
  */
 
-const FIELDS = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp'
-const LIMIT = 12
+const BASE_FIELDS = 'id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count'
 
-const FALLBACK = [
-  'photo-1519741497674-611481863552',
-  'photo-1524504388940-b1c1722653e1',
-  'photo-1595777457583-95e059d581b8',
-  'photo-1511285560929-80b456fea0bc',
-  'photo-1488161628813-04466f872be2',
-  'photo-1523275335684-37898b6baf30',
-  'photo-1465495976277-4387d4b0b4c6',
-  'photo-1594552072238-b8a33785b261',
-  'photo-1483985988355-763728e1935b',
-  'photo-1470784789206-3d76d4b5dae0',
-  'photo-1530103862676-de8c9debad1d',
-  'photo-1519689680058-324335c77eba',
-].map((id, i) => ({
-  id: `fallback-${i}`,
-  media_type: 'IMAGE',
-  media_url: `https://images.unsplash.com/${id}?auto=format&fit=crop&w=600&q=80`,
-  permalink: 'https://instagram.com/',
-  // Sample captions carry hashtags so the category filter is demonstrable
-  // before the real API is connected.
-  caption: [
-    'Wedding day #wedding',
-    'Studio session #model',
-    'Getting ready #bridal',
-    'The vows #wedding',
-    'Street portrait #model',
-    'Brand campaign #commercial',
-    'Engagement evening #wedding',
-    'Veil and light #bridal',
-    'Fashion movement #model',
-    'The send off #film #cinematic',
-    'Golden hour party #birthday',
-    'Ceremony #comingofage',
-  ][i],
-}))
-
-/**
- * Instagram returns no category field, so we derive one from each caption
- * (see src/data/instagramCategories.js). Every post gets `category` and
- * `categoryLabel` attached here, once, so the UI can just filter on it.
- */
 function withCategories(list) {
   return list.map((p) => {
     const c = categorise(p.caption, p.media_type)
@@ -76,9 +32,23 @@ function withCategories(list) {
   })
 }
 
-export function useInstagramFeed() {
+function engagementScore(post) {
+  return post.like_count || 0
+}
+
+function fallbackFolder(sortBy) {
+  return sortBy === 'engagement' ? GALLERY.selectedWork : GALLERY.instagram
+}
+
+async function loadFallback(sortBy, limit) {
+  const folder = fallbackFolder(sortBy)
+  const local = await loadLocalPosts(folder, limit)
+  return withCategories(local)
+}
+
+export function useInstagramFeed({ limit = 12, sortBy = 'recent' } = {}) {
   const [posts, setPosts] = useState([])
-  const [status, setStatus] = useState('loading') // loading | ready | fallback
+  const [status, setStatus] = useState('loading')
 
   useEffect(() => {
     const token = import.meta.env.VITE_IG_ACCESS_TOKEN
@@ -86,42 +56,66 @@ export function useInstagramFeed() {
     const proxy = import.meta.env.VITE_IG_PROXY_URL
 
     const controller = new AbortController()
+    // Fetch a larger pool when sorting by engagement so we can pick the best.
+    const fetchLimit = sortBy === 'engagement' ? 50 : limit
+
+    async function fetchAllPages(firstUrl) {
+      const all = []
+      let next = firstUrl
+      while (next) {
+        const res = await fetch(next, { signal: controller.signal })
+        if (!res.ok) throw new Error(`IG ${res.status}`)
+        const json = await res.json()
+        const page = (json.data || []).filter(
+          (m) => m.media_type !== 'VIDEO' || m.thumbnail_url,
+        )
+        all.push(...page)
+        next = json.paging?.next ?? null
+      }
+      return all
+    }
 
     async function load() {
-      // Prefer a server-side proxy if configured.
-      const url = proxy
-        ? `${proxy}?limit=${LIMIT}`
+      const baseUrl = proxy
+        ? `${proxy}?limit=${fetchLimit}`
         : token && userId
-          ? `https://graph.instagram.com/${userId}/media?fields=${FIELDS}&limit=${LIMIT}&access_token=${token}`
+          ? `https://graph.instagram.com/${userId}/media?fields=${BASE_FIELDS}&limit=${fetchLimit}&access_token=${token}`
           : null
 
-      if (!url) {
-        setPosts(withCategories(FALLBACK))
+      if (!baseUrl) {
+        setPosts(await loadFallback(sortBy, limit))
         setStatus('fallback')
         return
       }
 
       try {
-        const res = await fetch(url, { signal: controller.signal })
-        if (!res.ok) throw new Error(`IG ${res.status}`)
-        const json = await res.json()
-        const data = (json.data || []).filter(
-          (m) => m.media_type !== 'VIDEO' || m.thumbnail_url,
-        )
+        let data
+        if (sortBy === 'engagement') {
+          data = await fetchAllPages(baseUrl)
+          data.sort((a, b) => engagementScore(b) - engagementScore(a))
+        } else {
+          const res = await fetch(baseUrl, { signal: controller.signal })
+          if (!res.ok) throw new Error(`IG ${res.status}`)
+          const json = await res.json()
+          data = (json.data || []).filter(
+            (m) => m.media_type !== 'VIDEO' || m.thumbnail_url,
+          )
+        }
+
         if (!data.length) throw new Error('no media')
-        setPosts(withCategories(data))
+        setPosts(withCategories(data.slice(0, limit)))
         setStatus('ready')
       } catch (err) {
         if (err.name === 'AbortError') return
-        console.warn('[Instagram] falling back to placeholders:', err.message)
-        setPosts(withCategories(FALLBACK))
+        console.warn('[Instagram] falling back to local gallery:', err.message)
+        setPosts(await loadFallback(sortBy, limit))
         setStatus('fallback')
       }
     }
 
     load()
     return () => controller.abort()
-  }, [])
+  }, [limit, sortBy])
 
   return { posts, status }
 }

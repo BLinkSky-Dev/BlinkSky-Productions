@@ -1,5 +1,5 @@
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowUpRight } from 'lucide-react'
 import { services } from '../data/services'
 import SectionHeading from './SectionHeading'
 
@@ -16,22 +16,24 @@ import SectionHeading from './SectionHeading'
  * mosaic stays solid no matter how the spans are tweaked.
  */
 const SPAN = {
-  wedding: 'lg:col-span-2 lg:row-span-2',
-  model: 'lg:row-span-2',
-  bridal: 'lg:row-span-2',
-  commercial: 'lg:col-span-2',
-  video: 'lg:col-span-2',
-  events: 'lg:col-span-2',
+  wedding:    'lg:col-span-2 lg:row-span-2',
+  bridal:     'lg:row-span-2',
+  model:      'lg:row-span-2',
+  commercial: 'lg:col-span-2 lg:row-span-2',
+  birthday:   'lg:row-span-2',
+  graduation: 'lg:row-span-2',
 }
 
 export default function Services() {
+  const [expandedId, setExpandedId] = useState(null)
+
   return (
     <section id="services" className="relative py-24 md:py-32">
       <div className="container-x">
         <SectionHeading
           eyebrow="What We Shoot"
-          title="Every milestone deserves a frame."
-          intro="One studio, many stories. Explore the work, whatever the occasion, we bring the same cinematic craft to every frame."
+          title="Whatever the occasion, it deserves a proper frame."
+          intro="Six services, one level of care. Whatever brings you here, the approach stays the same."
           align="center"
         />
 
@@ -42,6 +44,7 @@ export default function Services() {
         >
           {services.map((s, i) => {
             const Icon = s.icon
+            const isExpanded = expandedId === s.id
             return (
               <motion.div
                 key={s.id}
@@ -55,17 +58,15 @@ export default function Services() {
                 }}
                 className={SPAN[s.id] ?? ''}
               >
-              <motion.a
-                href="#contact"
-                aria-label={`${s.title}, enquire`}
+              <motion.div
+                aria-label={s.title}
                 initial="rest"
                 animate="rest"
                 whileHover="hov"
-                whileFocus="hov"
+                onClick={() => setExpandedId(isExpanded ? null : s.id)}
                 className="group relative flex h-full w-full overflow-hidden rounded-2xl bg-ink-800
-                           cursor-pointer ring-1 ring-ink-700 transition-all duration-500 ease-smooth
-                           hover:ring-champagne/60 focus-visible:outline-none
-                           focus-visible:ring-2 focus-visible:ring-champagne"
+                           ring-1 ring-ink-700 transition-all duration-500 ease-smooth
+                           hover:ring-champagne/60 cursor-pointer lg:cursor-default"
               >
                 {/* Photograph, zoom driven by Framer so it can't be lost to a
                     CSS transform-composition quirk. */}
@@ -76,7 +77,7 @@ export default function Services() {
                   decoding="async"
                   variants={{ rest: { scale: 1 }, hov: { scale: 1.1 } }}
                   transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  className={`absolute inset-0 h-full w-full object-cover ${s.objectPosition ?? 'object-center'}`}
                 />
 
                 {/* Legibility wash, deepens on hover */}
@@ -98,18 +99,6 @@ export default function Services() {
                   />
                 </div>
 
-                {/* Arrow badge */}
-                <motion.span
-                  variants={{
-                    rest: { opacity: 0, y: 6, scale: 0.9 },
-                    hov: { opacity: 1, y: 0, scale: 1 },
-                  }}
-                  transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center
-                             rounded-full bg-champagne text-ink-950"
-                >
-                  <ArrowUpRight size={17} />
-                </motion.span>
 
                 {/* Title + reveal */}
                 <div className="absolute inset-x-0 bottom-0 p-5 md:p-6">
@@ -123,14 +112,15 @@ export default function Services() {
                   {/* champagne rule grows on hover */}
                   <span className="mt-2.5 block h-px w-8 bg-champagne transition-all duration-500 ease-smooth group-hover:w-16" />
 
-                  {/* Copy is always visible on touch (no hover there); on desktop
-                      it stays tucked away until the tile is hovered/focused. */}
+                  {/* Mobile: hidden by default, shown on tap via expandedId state.
+                      Desktop: hidden until hovered/focused. */}
                   <div
-                    className="mt-3 grid grid-rows-[1fr] opacity-100 transition-all duration-500 ease-smooth
-                               lg:mt-0 lg:grid-rows-[0fr] lg:opacity-0
-                               lg:group-hover:mt-3 lg:group-hover:grid-rows-[1fr] lg:group-hover:opacity-100
-                               lg:group-focus-visible:mt-3 lg:group-focus-visible:grid-rows-[1fr]
-                               lg:group-focus-visible:opacity-100"
+                    className={`grid transition-all duration-500 ease-smooth
+                      ${isExpanded ? 'mt-3 grid-rows-[1fr] opacity-100' : 'mt-0 grid-rows-[0fr] opacity-0'}
+                      lg:mt-0 lg:grid-rows-[0fr] lg:opacity-0
+                      lg:group-hover:mt-3 lg:group-hover:grid-rows-[1fr] lg:group-hover:opacity-100
+                      lg:group-focus-visible:mt-3 lg:group-focus-visible:grid-rows-[1fr]
+                      lg:group-focus-visible:opacity-100`}
                   >
                     <div className="overflow-hidden">
                       <p className="text-sm leading-relaxed text-cloud/80 line-clamp-3">
@@ -150,7 +140,7 @@ export default function Services() {
                     </div>
                   </div>
                 </div>
-              </motion.a>
+              </motion.div>
               </motion.div>
             )
           })}

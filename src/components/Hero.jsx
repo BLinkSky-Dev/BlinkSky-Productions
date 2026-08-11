@@ -1,31 +1,117 @@
+﻿import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowDown, Instagram } from 'lucide-react'
 import { whatsappLink } from '../data/socials'
 
-const heroImg =
-  'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1920&q=80'
+/**
+ * Hero media:
+ *   1. Landscape reels in public/gallery/hero/ (meta.json from npm run gallery:hero)
+ *   2. Fallback — BlinkSky logo on the dark field
+ */
+const HERO_LOGO = '/logo-landscape.png'
+const HERO_META = '/gallery/hero/meta.json'
 
 export default function Hero() {
+  const videoRef = useRef(null)
+  const [videos, setVideos] = useState([])
+  const [index, setIndex] = useState(0)
+  const [videoReady, setVideoReady] = useState(false)
+  const [videoFailed, setVideoFailed] = useState(false)
+  const [reduceMotion, setReduceMotion] = useState(false)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    setReduceMotion(mq.matches)
+    const onChange = () => setReduceMotion(mq.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
+
+  useEffect(() => {
+    let alive = true
+    fetch(HERO_META, { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((meta) => {
+        if (!alive || !Array.isArray(meta)) return
+        const list = meta
+          .filter((m) => m?.file)
+          .map((m) => `/gallery/hero/${m.file}`)
+        setVideos(list)
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [])
+
+  const src = videos[index]
+  const showVideo = Boolean(src) && !videoFailed && !reduceMotion
+
+  useEffect(() => {
+    setVideoReady(false)
+    setVideoFailed(false)
+  }, [src])
+
+  // Advance to the next landscape reel when one ends (soft rotation).
+  function handleEnded() {
+    if (videos.length < 2) {
+      videoRef.current?.play()?.catch(() => {})
+      return
+    }
+    setIndex((i) => (i + 1) % videos.length)
+  }
+
   return (
     <section id="top" className="relative min-h-[100svh] w-full overflow-hidden">
-      {/* Background image with cinematic wash */}
       <motion.div
         className="absolute inset-0"
         initial={{ scale: 1.12 }}
         animate={{ scale: 1 }}
         transition={{ duration: 2.2, ease: [0.22, 1, 0.36, 1] }}
+        style={{ transformOrigin: '50% 0%' }}
       >
-        <img
-          src={heroImg}
-          alt="A couple photographed at golden hour by BlinkSky Productions"
-          className="h-full w-full object-cover"
-          fetchpriority="high"
-        />
+        {/* Logo fallback — shows while video loads / if video is unavailable */}
+        <div
+          className={`absolute inset-0 flex items-center justify-center bg-ink-950 transition-opacity duration-700 ${
+            videoReady && showVideo ? 'opacity-0' : 'opacity-100'
+          }`}
+        >
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,169,110,0.12),transparent_55%)]" />
+          <img
+            src={HERO_LOGO}
+            alt="BlinkSky Productions"
+            className="relative w-[min(72vw,28rem)] max-w-lg object-contain opacity-90"
+            fetchpriority="high"
+          />
+        </div>
+
+        {showVideo && (
+          <video
+            key={src}
+            ref={videoRef}
+            className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-700 ${
+              videoReady ? 'opacity-100' : 'opacity-0'
+            }`}
+            src={src}
+            autoPlay
+            muted
+            playsInline
+            loop={videos.length < 2}
+            preload="metadata"
+            onCanPlay={() => {
+              setVideoReady(true)
+              videoRef.current?.play()?.catch(() => setVideoFailed(true))
+            }}
+            onEnded={handleEnded}
+            onError={() => setVideoFailed(true)}
+            aria-hidden="true"
+          />
+        )}
+
         <div className="absolute inset-0 bg-gradient-to-b from-ink-950/70 via-ink-950/50 to-ink-950" />
         <div className="absolute inset-0 bg-gradient-to-r from-ink-950/80 to-transparent" />
       </motion.div>
 
-      {/* Content */}
       <div className="container-x relative flex min-h-[100svh] flex-col justify-center pt-28 pb-16">
         <motion.div
           className="mb-6 flex items-center gap-3"
@@ -53,9 +139,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.9 }}
         >
-          From weddings and bridal portraits to model, commercial and celebration
-          shoots, BlinkSky Productions turns fleeting moments into cinematic
-          stories you&apos;ll return to for a lifetime.
+          BlinkSky Productions shoots weddings, bridal portraits, model portfolios, commercial campaigns and birthdays. Every image is made to be worth holding onto.
         </motion.p>
 
         <motion.div
@@ -82,7 +166,6 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll cue */}
       <a
         href="#services"
         className="absolute bottom-6 left-1/2 flex h-11 w-11 -translate-x-1/2 items-center justify-center animate-bounce text-cloud/50 transition-colors hover:text-champagne"
