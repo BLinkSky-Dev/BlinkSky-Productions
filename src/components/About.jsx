@@ -420,7 +420,7 @@ export default function About() {
                               b.name === 'Bridal Dressing By Awshalya'
                                 ? 'h-full w-full object-cover'
                                 : b.name === 'SISIRAS Digital Advertising'
-                                  ? 'h-full w-full scale-[1.35] object-cover'
+                                  ? 'h-full w-full scale-[1.08] object-cover'
                                   : b.name === 'JHUMKAS'
                                     ? 'h-[92%] w-auto max-w-[92%] scale-100 object-contain'
                                     : 'h-[92%] w-auto max-w-[92%] scale-125 object-contain'
@@ -489,7 +489,7 @@ export default function About() {
                             b.name === 'Bridal Dressing By Awshalya'
                               ? 'relative z-10 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105'
                               : b.name === 'SISIRAS Digital Advertising'
-                                ? 'relative z-10 h-full w-full scale-[1.3] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.38]'
+                                ? 'relative z-10 h-full w-full scale-[1.05] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.1]'
                                 : 'relative z-10 h-44 w-auto max-w-[80%] object-contain transition-transform duration-500 ease-out group-hover:scale-110'
                           }
                         />
