@@ -105,7 +105,7 @@ export default function About() {
     clearTimeout(resumeTimer.current)
     resumeTimer.current = setTimeout(() => {
       pausedRef.current = false
-    }, 8000)
+    }, 4000)
   }
 
   useEffect(() => () => clearTimeout(resumeTimer.current), [])
