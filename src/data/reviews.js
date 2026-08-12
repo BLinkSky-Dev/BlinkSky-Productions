@@ -48,44 +48,41 @@ export function googleProfileUrl() {
 export const fallbackReviews = [
   {
     id: 'g1',
-    author: 'Aishwarya K.',
+    author: 'Ahamed Hamdhan.',
     rating: 5,
-    text: 'Sandosh made our wedding day feel effortless. Every frame feels like us — candid, warm, and worth framing. We still go back to the gallery every week.',
-    relativeTime: '2 months ago',
+    text: 'Perfect wedding photos and videos. Highly recommended.',
   },
   {
     id: 'g2',
-    author: 'Diluksha S.',
+    author: 'Praveen dev',
     rating: 5,
-    text: 'Booked BlinkSky for my birthday shoot and the whole team was so easy to work with. The photos came out better than I imagined — natural light, beautiful colour.',
-    relativeTime: '3 months ago',
+    text: 'Had a recent photoshoot and turned out very nice. Appreciate the photographer\'s skill and timeliness.',
   },
   {
     id: 'g3',
-    author: 'Denujen J.',
+    author: 'Thidu Thidushan',
     rating: 5,
-    text: 'Model portfolio session that actually understands fashion lighting. Quick turnaround, clear direction on set, and images that stand out in my book.',
-    relativeTime: '4 months ago',
+    text: 'Good Quality output of our portraits... Highly recommended.',
   },
   {
     id: 'g4',
-    author: 'Tharaa R.',
+    author: 'Dewmini Ruston',
     rating: 5,
-    text: 'Bridal portraits with an editorial feel without losing the emotion. Makeup, costume, and camera all synced — highly recommend for anyone who wants timeless work.',
-    relativeTime: '5 months ago',
+    text: 'Good quality work',
+   
   },
   {
     id: 'g5',
-    author: 'Vishnu & Anu',
+    author: 'master fragrance',
     rating: 5,
     text: 'From engagement to the wedding day, BlinkSky captured every quiet moment and every celebration. Family keeps asking who shot our photos.',
-    relativeTime: '6 months ago',
+    
   },
   {
     id: 'g6',
-    author: 'Axshu',
+    author: 'Sandaruwan Bandara',
     rating: 5,
     text: 'Professional, on time, and genuinely creative. The pre-wedding frames look like a film still. Grateful we found them in Wattala.',
-    relativeTime: '7 months ago',
+    
   },
 ]

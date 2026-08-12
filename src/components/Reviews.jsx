@@ -125,9 +125,9 @@ export default function Reviews() {
                   <cite className="not-italic text-sm font-medium text-cloud">
                     {rev.author}
                   </cite>
-                  {rev.relativeTime && (
+                  {/* {rev.relativeTime && (
                     <time className="text-xs text-cloud/40">{rev.relativeTime}</time>
-                  )}
+                  )} */}
                 </footer>
               </motion.li>
             ))}
