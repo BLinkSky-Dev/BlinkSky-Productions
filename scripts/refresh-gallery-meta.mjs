@@ -2,6 +2,11 @@
  * Rebuilds meta.json for local gallery folders from whatever image files
  * are present. Keeps existing caption/permalink/likes when the filename matches.
  *
+ * Covers:
+ *   public/gallery/instagram/
+ *   public/gallery/selected-work/
+ *   public/gallery/services/<category>/
+ *
  * Usage: node scripts/refresh-gallery-meta.mjs
  */
 import fs from 'fs'
@@ -10,8 +15,18 @@ import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(__dirname, '..')
-const folders = ['instagram', 'selected-work']
 const IMAGE_RE = /\.(jpe?g|png|webp)$/i
+
+function listFolders() {
+  const folders = ['instagram', 'selected-work']
+  const servicesRoot = path.join(root, 'public/gallery/services')
+  if (fs.existsSync(servicesRoot)) {
+    for (const entry of fs.readdirSync(servicesRoot, { withFileTypes: true })) {
+      if (entry.isDirectory()) folders.push(path.join('services', entry.name))
+    }
+  }
+  return folders
+}
 
 function refresh(folder) {
   const dir = path.join(root, 'public/gallery', folder)
@@ -37,7 +52,7 @@ function refresh(folder) {
     const old = byFile.get(file) || {}
     return {
       file,
-      id: old.id || `local-${folder}-${i + 1}`,
+      id: old.id || `local-${folder.replace(/[\\/]/g, '-')}-${i + 1}`,
       caption: old.caption || '',
       permalink: old.permalink || 'https://instagram.com/',
       media_type: old.media_type || 'IMAGE',
@@ -50,4 +65,4 @@ function refresh(folder) {
   console.log(`${folder}: ${meta.length} image(s) → meta.json`)
 }
 
-for (const folder of folders) refresh(folder)
+for (const folder of listFolders()) refresh(folder)

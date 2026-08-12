@@ -1,19 +1,58 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
-import { services } from '../data/services'
+import { services, serviceGalleryBase } from '../data/services'
 import SectionHeading from './SectionHeading'
 import SmartImage from './SmartImage'
 import Lightbox from './Lightbox'
 import Watermark from './Watermark'
 
 /**
+ * Load image URLs for a service category from its folder meta.json.
+ * Falls back to the cover image if meta is missing or empty.
+ */
+async function loadServiceGallery(service) {
+  const base = serviceGalleryBase(service.id)
+  try {
+    const res = await fetch(`${base}/meta.json`)
+    if (res.ok) {
+      const meta = await res.json()
+      if (Array.isArray(meta) && meta.length) {
+        return meta
+          .map((m) => (m?.file ? `${base}/${m.file}` : null))
+          .filter(Boolean)
+      }
+    }
+  } catch {
+    /* use cover */
+  }
+  return service.image ? [service.image] : []
+}
+
+/**
  * What We Shoot — accordion list.
- * One category open at a time; expand reveals a short blurb and related frames.
+ * One category open at a time; expand reveals a short blurb and related frames
+ * from public/gallery/services/<id>/.
  */
 export default function Services() {
   const [expandedId, setExpandedId] = useState(services[0]?.id ?? null)
+  const [galleries, setGalleries] = useState(() =>
+    Object.fromEntries(services.map((s) => [s.id, s.image ? [s.image] : []])),
+  )
   const [lightbox, setLightbox] = useState({ items: [], index: null })
+
+  useEffect(() => {
+    let alive = true
+    Promise.all(services.map(async (s) => [s.id, await loadServiceGallery(s)])).then(
+      (entries) => {
+        if (!alive) return
+        setGalleries(Object.fromEntries(entries))
+      },
+    )
+    return () => {
+      alive = false
+    }
+  }, [])
 
   const openLightbox = (gallery, title, startIndex) => {
     setLightbox({
@@ -43,6 +82,7 @@ export default function Services() {
             const isOpen = expandedId === s.id
             const panelId = `service-panel-${s.id}`
             const headerId = `service-header-${s.id}`
+            const gallery = galleries[s.id] ?? (s.image ? [s.image] : [])
 
             return (
               <motion.div
@@ -68,7 +108,7 @@ export default function Services() {
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne
                                focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950"
                   >
-                    {/* <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg sm:h-16 sm:w-16">
+                    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg sm:h-16 sm:w-16">
                       <img
                         src={s.image}
                         alt=""
@@ -79,7 +119,7 @@ export default function Services() {
                                     ${isOpen ? 'scale-110' : 'group-hover:scale-105'}`}
                       />
                       <span className="absolute inset-0 bg-ink-950/25" />
-                    </span> */}
+                    </span>
 
                     <span className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
                       <span className="hidden font-sans text-[11px] tabular-nums tracking-widest text-cloud/40 sm:inline">
@@ -141,7 +181,7 @@ export default function Services() {
                       )}
 
                       <ul className="mt-5 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-3 sm:gap-3">
-                        {s.gallery.map((src, gi) => (
+                        {gallery.map((src, gi) => (
                           <li
                             key={src}
                             className={
@@ -153,7 +193,7 @@ export default function Services() {
                             <button
                               type="button"
                               tabIndex={isOpen ? 0 : -1}
-                              onClick={() => openLightbox(s.gallery, s.title, gi)}
+                              onClick={() => openLightbox(gallery, s.title, gi)}
                               className="group/shot relative block h-full w-full overflow-hidden
                                          rounded-lg ring-1 ring-ink-700 transition-all duration-500
                                          hover:ring-champagne/50
