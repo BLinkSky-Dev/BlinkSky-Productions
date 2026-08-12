@@ -157,7 +157,7 @@ export default function Hero() {
           <a href="#work" className="btn-ghost">
             View Our Work
           </a>
-          <a
+          {/* <a
             href={whatsappLink()}
             target="_blank"
             rel="noopener noreferrer"
@@ -165,7 +165,7 @@ export default function Hero() {
                        transition-colors hover:text-champagne hover:underline"
           >
             <Instagram size={16} /> or message us directly
-          </a>
+          </a> */}
         </motion.div>
       </div>
 

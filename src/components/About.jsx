@@ -57,19 +57,39 @@ const brands = [
     description: 'Wedding photography studio capturing bridal moments with a fine art touch.',
   },
   {
-    name: 'JHUMKAS',
-    logo: '/logo-jhumkas.png',
-    logoBg: 'bg-[#ECE5D3]',
-    description: 'Jhumkas and jewellery traditional elegance, made to be worn and kept.',
-  },
-  {
     name: 'B.dev',
     logo: '/logo-bdev.png',
     logoBg: 'bg-white',
     description:
       'Transforming businesses for the digital age through innovative solutions, custom development, and strategic social media marketing.',
   },
+  {
+    name: 'JHUMKAS',
+    logo: '/logo-jhumkas.png',
+    logoBg: 'bg-[#ECE5D3]',
+    description: 'Jhumkas and jewellery traditional elegance, made to be worn and kept.',
+  },
+ 
+  {
+    name: 'SISIRAS Digital Advertising',
+    logo: '/logo-sisiras-digital.png',
+    logoBg: 'bg-[#ddddf7]',
+    description:
+      'Photo restore, printing, digital banners, framing, creative print & digital for every brief.',
+  },
+  {
+    name: 'Bridal Dressing By Awshalya',
+    logo: '/logo-awshalya.png',
+    logoBg:
+      'bg-[linear-gradient(135deg,#051820_0%,#07232f_35%,#061f2b_50%,#07232f_65%,#051820_100%)]',
+    description: 'Bridal dressings styled for your day elegance from fitting to final look.',
+  },
 ]
+
+/** Triple the list so we can loop seamlessly in either direction. */
+const loopBrands = [...brands, ...brands, ...brands]
+const BRAND_COUNT = brands.length
+const LOOP_START = BRAND_COUNT // middle copy
 
 function WhatsAppIcon({ size = 18 }) {
   return (
@@ -79,13 +99,126 @@ function WhatsAppIcon({ size = 18 }) {
   )
 }
 
+function scrollCardIntoView(scroller, index, behavior = 'smooth') {
+  const card = scroller.querySelectorAll('[data-brand-card]')[index]
+  if (!card) return
+  const left = Math.max(0, card.offsetLeft - (scroller.clientWidth - card.offsetWidth) / 2)
+
+  if (behavior === 'auto') {
+    scroller.scrollTo({ left, behavior: 'auto' })
+    return
+  }
+
+  // Faster than native `smooth` (~280ms ease-out).
+  const start = scroller.scrollLeft
+  const delta = left - start
+  if (Math.abs(delta) < 1) return
+
+  const duration = 280
+  const t0 = performance.now()
+  const step = (now) => {
+    const t = Math.min(1, (now - t0) / duration)
+    const ease = 1 - (1 - t) ** 3
+    scroller.scrollLeft = start + delta * ease
+    if (t < 1) requestAnimationFrame(step)
+  }
+  requestAnimationFrame(step)
+}
+
+function nearestCardIndex(scroller) {
+  const cards = scroller.querySelectorAll('[data-brand-card]')
+  if (!cards.length) return 0
+  const mid = scroller.scrollLeft + scroller.clientWidth / 2
+  let best = 0
+  let bestDist = Infinity
+  cards.forEach((card, i) => {
+    const center = card.offsetLeft + card.offsetWidth / 2
+    const dist = Math.abs(center - mid)
+    if (dist < bestDist) {
+      bestDist = dist
+      best = i
+    }
+  })
+  return best
+}
+
 export default function About() {
   const [active, setActive] = useState(0)
+  const scrollerRef = useRef(null)
+  const indexRef = useRef(LOOP_START)
   const pausedRef = useRef(false)
   const resumeTimer = useRef(null)
-  const selected = brands[active]
-  const SelectedIcon = selected.icon
+  const jumpingRef = useRef(false)
 
+  const pauseAuto = () => {
+    pausedRef.current = true
+    clearTimeout(resumeTimer.current)
+    resumeTimer.current = setTimeout(() => {
+      pausedRef.current = false
+    }, 5000)
+  }
+
+  const goToLoopIndex = (loopIndex, behavior = 'smooth') => {
+    const el = scrollerRef.current
+    if (!el) return
+    indexRef.current = loopIndex
+    setActive(((loopIndex % BRAND_COUNT) + BRAND_COUNT) % BRAND_COUNT)
+    scrollCardIntoView(el, loopIndex, behavior)
+  }
+
+  // Land on the middle copy once cards are measured.
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+    const id = requestAnimationFrame(() => goToLoopIndex(LOOP_START, 'auto'))
+    return () => cancelAnimationFrame(id)
+  }, [])
+
+  // Track scroll → active dot; teleport when we leave the middle copy.
+  useEffect(() => {
+    const el = scrollerRef.current
+    if (!el) return
+
+    let settleTimer = null
+
+    const onScroll = () => {
+      if (jumpingRef.current) return
+      const i = nearestCardIndex(el)
+      indexRef.current = i
+      setActive(i % BRAND_COUNT)
+
+      clearTimeout(settleTimer)
+      settleTimer = setTimeout(() => {
+        // Jump back into the middle set without a visible flash.
+        if (i < BRAND_COUNT || i >= BRAND_COUNT * 2) {
+          const mid = BRAND_COUNT + (i % BRAND_COUNT)
+          jumpingRef.current = true
+          scrollCardIntoView(el, mid, 'auto')
+          indexRef.current = mid
+          requestAnimationFrame(() => {
+            jumpingRef.current = false
+          })
+        }
+      }, 120)
+    }
+
+    const onInteract = () => pauseAuto()
+
+    el.addEventListener('scroll', onScroll, { passive: true })
+    el.addEventListener('pointerdown', onInteract, { passive: true })
+    el.addEventListener('touchstart', onInteract, { passive: true })
+    el.addEventListener('wheel', onInteract, { passive: true })
+
+    return () => {
+      clearTimeout(settleTimer)
+      el.removeEventListener('scroll', onScroll)
+      el.removeEventListener('pointerdown', onInteract)
+      el.removeEventListener('touchstart', onInteract)
+      el.removeEventListener('wheel', onInteract)
+    }
+  }, [])
+
+  // Auto-advance with seamless loop.
   useEffect(() => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const desktop = window.matchMedia('(min-width: 1024px)')
@@ -93,22 +226,19 @@ export default function About() {
 
     const id = setInterval(() => {
       if (pausedRef.current || document.hidden || desktop.matches) return
-      setActive((i) => (i + 1) % brands.length)
-    }, 2000)
+      goToLoopIndex(indexRef.current + 1, 'smooth')
+    }, 2500)
 
     return () => clearInterval(id)
   }, [])
 
-  const selectBrand = (i) => {
-    setActive(i)
-    pausedRef.current = true
-    clearTimeout(resumeTimer.current)
-    resumeTimer.current = setTimeout(() => {
-      pausedRef.current = false
-    }, 4000)
-  }
-
   useEffect(() => () => clearTimeout(resumeTimer.current), [])
+
+  const goTo = (brandIndex) => {
+    pauseAuto()
+    // Prefer the middle-copy equivalent so looping stays continuous.
+    goToLoopIndex(LOOP_START + brandIndex, 'smooth')
+  }
 
   return (
     <section id="about" className="relative py-24 md:py-32 bg-ink-900/40">
@@ -254,92 +384,78 @@ export default function About() {
               The BlinkSky brands
             </h2>
             <p className="mx-auto mt-4 max-w-md text-center leading-relaxed text-cloud/55">
-              Six brands, one standard of work.
-              <span className="lg:hidden"> Tap a frame anytime.</span>
+              Eight brands, one standard of work.
+              <span className="lg:hidden"> Swipes on its own — or swipe yourself.</span>
             </p>
           </Reveal>
 
-          {/* Mobile / tablet — contact sheet + autoplay */}
+          {/* Mobile / tablet — looping autoplay carousel */}
           <Reveal delay={0.08} className="lg:hidden">
-            <div className="mx-auto mt-10 max-w-lg rounded-sm border border-ink-600/80 bg-ink-950/80 p-2.5 sm:p-3">
+            <div className="mt-10">
               <div
-                className="grid grid-cols-2 gap-2 sm:gap-2.5"
-                role="tablist"
+                ref={scrollerRef}
+                className="-mx-6 flex gap-4 overflow-x-auto px-6 pb-2 snap-x snap-mandatory
+                           [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                 aria-label="BlinkSky brands"
+                style={{ WebkitOverflowScrolling: 'touch' }}
               >
-                {brands.map((b, i) => {
+                {loopBrands.map((b, i) => {
                   const Icon = b.icon
-                  const on = i === active
                   return (
-                    <button
-                      key={b.name}
-                      type="button"
-                      role="tab"
-                      aria-selected={on}
-                      aria-controls="brand-caption"
-                      aria-label={b.name}
-                      onClick={() => selectBrand(i)}
-                      className={`group relative flex aspect-[4/3] items-center justify-center
-                                  overflow-hidden rounded-[2px] transition-all duration-300 cursor-pointer
-                                  ${on
-                                    ? 'ring-2 ring-champagne ring-offset-2 ring-offset-ink-950'
-                                    : 'ring-1 ring-ink-700/80 opacity-80 active:opacity-100'}`}
+                    <article
+                      key={`${b.name}-${i}`}
+                      data-brand-card
+                      className="w-[82%] max-w-sm shrink-0 snap-center overflow-hidden rounded-2xl
+                                 border border-ink-700 bg-ink-950/60 sm:w-[70%]"
                     >
-                      <span className={`absolute inset-0 ${b.logoBg ?? 'bg-ink-800'}`} />
-                      <span className="absolute left-1.5 top-1.5 z-20 font-sans text-[9px]
-                                       tabular-nums tracking-wider text-cloud/40 mix-blend-difference
-                                       sm:text-[10px]">
-                        {String(i + 1).padStart(2, '0')}
-                      </span>
-                      {b.logo ? (
-                        <img
-                          src={b.logo}
-                          alt=""
-                          className="relative z-10 h-[70%] w-[70%] object-contain
-                                     transition-transform duration-500 group-active:scale-105"
-                        />
-                      ) : (
-                        <Icon size={28} className="relative z-10 text-champagne" strokeWidth={1.3} />
-                      )}
-                    </button>
+                      <div
+                        className={`flex h-44 items-center justify-center overflow-hidden sm:h-52
+                                    ${b.logoBg ?? 'bg-ink-800'}`}
+                      >
+                        {b.logo ? (
+                          <img
+                            src={b.logo}
+                            alt=""
+                            className={
+                              b.name === 'Bridal Dressing By Awshalya'
+                                ? 'h-full w-full object-cover'
+                                : b.name === 'SISIRAS Digital Advertising'
+                                  ? 'h-full w-full scale-[1.08] object-cover'
+                                  : b.name === 'JHUMKAS'
+                                    ? 'h-[92%] w-auto max-w-[92%] scale-100 object-contain'
+                                    : 'h-[92%] w-auto max-w-[92%] scale-125 object-contain'
+                            }
+                          />
+                        ) : (
+                          <Icon size={48} className="text-champagne" strokeWidth={1.2} />
+                        )}
+                      </div>
+                      <div className="border-t border-ink-700/60 px-5 py-5 text-center">
+                        <h3 className="font-serif text-2xl text-cloud">{b.name}</h3>
+                        <p className="mt-2 text-sm leading-relaxed text-cloud/55">
+                          {b.description}
+                        </p>
+                      </div>
+                    </article>
                   )
                 })}
               </div>
 
-              <div
-                id="brand-caption"
-                role="tabpanel"
-                key={selected.name}
-                className="mt-2.5 border-t border-dashed border-ink-600/70 px-3 pb-1 pt-4
-                           animate-[fade-up_0.3s_ease-out] sm:px-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={`flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden
-                                rounded-[2px] ${selected.logoBg ?? 'bg-ink-800'}`}
-                  >
-                    {selected.logo ? (
-                      <img
-                        src={selected.logo}
-                        alt=""
-                        className="h-[72%] w-[72%] object-contain"
-                      />
-                    ) : (
-                      <SelectedIcon size={22} className="text-champagne" strokeWidth={1.3} />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1 text-left">
-                    <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-champagne/70">
-                      Frame {String(active + 1).padStart(2, '0')}
-                    </p>
-                    <h3 className="mt-1 font-serif text-xl leading-tight text-cloud sm:text-2xl">
-                      {selected.name}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-cloud/55">
-                      {selected.description}
-                    </p>
-                  </div>
-                </div>
+              <div className="mt-5 flex items-center justify-center gap-2" role="tablist" aria-label="Brand slides">
+                {brands.map((b, i) => (
+                  <button
+                    key={b.name}
+                    type="button"
+                    role="tab"
+                    aria-selected={i === active}
+                    aria-label={b.name}
+                    onClick={() => goTo(i)}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer
+                                ${i === active
+                                  ? 'w-6 bg-champagne'
+                                  : 'w-2.5 bg-ink-600 active:bg-champagne/60'}`}
+                  />
+                ))}
               </div>
             </div>
           </Reveal>
@@ -369,8 +485,13 @@ export default function About() {
                         <img
                           src={b.logo}
                           alt={b.name}
-                          className="relative z-10 h-44 w-auto max-w-[80%] object-contain
-                                     transition-transform duration-500 ease-out group-hover:scale-110"
+                          className={
+                            b.name === 'Bridal Dressing By Awshalya'
+                              ? 'relative z-10 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105'
+                              : b.name === 'SISIRAS Digital Advertising'
+                                ? 'relative z-10 h-full w-full scale-[1.05] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.1]'
+                                : 'relative z-10 h-44 w-auto max-w-[80%] object-contain transition-transform duration-500 ease-out group-hover:scale-110'
+                          }
                         />
                       ) : (
                         <Icon
