@@ -57,17 +57,32 @@ const brands = [
     description: 'Wedding photography studio capturing bridal moments with a fine art touch.',
   },
   {
-    name: 'JHUMKAS',
-    logo: '/logo-jhumkas.png',
-    logoBg: 'bg-[#ECE5D3]',
-    description: 'Jhumkas and jewellery traditional elegance, made to be worn and kept.',
-  },
-  {
     name: 'B.dev',
     logo: '/logo-bdev.png',
     logoBg: 'bg-white',
     description:
       'Transforming businesses for the digital age through innovative solutions, custom development, and strategic social media marketing.',
+  },
+  {
+    name: 'JHUMKAS',
+    logo: '/logo-jhumkas.png',
+    logoBg: 'bg-[#ECE5D3]',
+    description: 'Jhumkas and jewellery traditional elegance, made to be worn and kept.',
+  },
+ 
+  {
+    name: 'SISIRAS Digital Advertising',
+    logo: '/logo-sisiras-digital.png',
+    logoBg: 'bg-[#ddddf7]',
+    description:
+      'Photo restore, printing, digital banners, framing, creative print & digital for every brief.',
+  },
+  {
+    name: 'Bridal Dressing By Awshalya',
+    logo: '/logo-awshalya.png',
+    logoBg:
+      'bg-[linear-gradient(135deg,#051820_0%,#07232f_35%,#061f2b_50%,#07232f_65%,#051820_100%)]',
+    description: 'Bridal dressings styled for your day elegance from fitting to final look.',
   },
 ]
 
@@ -369,7 +384,7 @@ export default function About() {
               The BlinkSky brands
             </h2>
             <p className="mx-auto mt-4 max-w-md text-center leading-relaxed text-cloud/55">
-              Six brands, one standard of work.
+              Eight brands, one standard of work.
               <span className="lg:hidden"> Swipes on its own — or swipe yourself.</span>
             </p>
           </Reveal>
@@ -401,8 +416,15 @@ export default function About() {
                           <img
                             src={b.logo}
                             alt=""
-                            className={`h-[92%] w-auto max-w-[92%] object-contain
-                                        ${b.name === 'JHUMKAS' ? 'scale-100' : 'scale-125'}`}
+                            className={
+                              b.name === 'Bridal Dressing By Awshalya'
+                                ? 'h-full w-full object-cover'
+                                : b.name === 'SISIRAS Digital Advertising'
+                                  ? 'h-full w-full scale-[1.35] object-cover'
+                                  : b.name === 'JHUMKAS'
+                                    ? 'h-[92%] w-auto max-w-[92%] scale-100 object-contain'
+                                    : 'h-[92%] w-auto max-w-[92%] scale-125 object-contain'
+                            }
                           />
                         ) : (
                           <Icon size={48} className="text-champagne" strokeWidth={1.2} />
@@ -463,8 +485,13 @@ export default function About() {
                         <img
                           src={b.logo}
                           alt={b.name}
-                          className="relative z-10 h-44 w-auto max-w-[80%] object-contain
-                                     transition-transform duration-500 ease-out group-hover:scale-110"
+                          className={
+                            b.name === 'Bridal Dressing By Awshalya'
+                              ? 'relative z-10 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105'
+                              : b.name === 'SISIRAS Digital Advertising'
+                                ? 'relative z-10 h-full w-full scale-[1.3] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.38]'
+                                : 'relative z-10 h-44 w-auto max-w-[80%] object-contain transition-transform duration-500 ease-out group-hover:scale-110'
+                          }
                         />
                       ) : (
                         <Icon
