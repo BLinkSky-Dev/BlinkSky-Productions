@@ -8,8 +8,25 @@ export const studio = {
   whatsapp: '94760047671',
   // Short label for tight spaces, the cities covered, and the main studio address.
   location: 'Wattala, Sri Lanka',
-  locations: ['Wattala', 'Dehiwela', 'Badulla', 'Bibila'],
+  locations: ['Wattala', 'Bibila', 'Dehiwela', 'Badulla'],
   address: 'Palliyawatta Rd, Wattala 11300, Sri Lanka',
+  /** Branch studios. `maps` is optional — when set, the name links out to Google Maps. */
+  branches: [
+    {
+      name: 'Wattala',
+      main: true,
+      address: 'Palliyawatta Rd, Wattala 11300, Sri Lanka',
+      maps: null, // resolved via mapsLink() from address
+    },
+    {
+      name: 'Bibila',
+      main: false,
+      address: 'Main Street, Bibile, Sri Lanka, 91500',
+      maps: 'https://maps.app.goo.gl/oRX9pbibKrvcSF3d7?g_st=awb',
+    },
+    { name: 'Dehiwela', main: false, maps: null },
+    { name: 'Badulla', main: false, maps: null },
+  ],
   instagramHandle: 'blink_sky_production',
   instagram: 'https://www.instagram.com/blink_sky_production',
   facebook: 'https://www.facebook.com/share/19CaU4mRox/',

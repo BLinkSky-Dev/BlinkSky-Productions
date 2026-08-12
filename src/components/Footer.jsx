@@ -1,4 +1,4 @@
-import { Instagram, Facebook, Youtube } from 'lucide-react'
+import { Instagram, Facebook, Youtube, Phone } from 'lucide-react'
 import TikTok from './icons/TikTok'
 import Logo from './Logo'
 import { studio, developer, developerWhatsappLink } from '../data/socials'
@@ -12,18 +12,24 @@ const nav = [
 ]
 
 const socials = [
-  { icon: Instagram, href: studio.instagram, label: 'Instagram' },
-  { icon: Facebook, href: studio.facebook, label: 'Facebook' },
-  { icon: TikTok, href: studio.tiktok, label: 'TikTok' },
-  { icon: Youtube, href: studio.youtube, label: 'YouTube' },
+  {
+    icon: Phone,
+    href: `tel:${studio.phone.replace(/\s/g, '')}`,
+    label: `Call ${studio.phone}`,
+    external: false,
+  },
+  { icon: Instagram, href: studio.instagram, label: 'Instagram', external: true },
+  { icon: Facebook, href: studio.facebook, label: 'Facebook', external: true },
+  { icon: TikTok, href: studio.tiktok, label: 'TikTok', external: true },
+  { icon: Youtube, href: studio.youtube, label: 'YouTube', external: true },
 ]
 
 export default function Footer() {
   return (
     <footer className="border-t border-ink-700 bg-ink-950 py-14">
       <div className="container-x">
-        <div className="flex flex-col items-start justify-between gap-10 md:flex-row md:items-center">
-          <div>
+        <div className="flex flex-col items-center justify-between gap-10 md:flex-row md:items-center">
+          <div className="flex flex-col items-center text-center md:items-start md:text-left">
             <Logo size="lg" />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-cloud/50">
               Photography &amp; videography studio. We frame the moments worth
@@ -51,9 +57,10 @@ export default function Footer() {
                 <a
                   key={s.label}
                   href={s.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   aria-label={s.label}
+                  {...(s.external
+                    ? { target: '_blank', rel: 'noopener noreferrer' }
+                    : {})}
                   className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600 text-cloud/70 transition-all hover:border-champagne hover:text-champagne"
                 >
                   <Icon size={18} />

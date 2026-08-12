@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, MapPin, Instagram, Facebook, Youtube, Check, Pencil } from 'lucide-react'
+import { Mail, MapPin, Instagram, Facebook, Youtube, Phone, Check, Pencil } from 'lucide-react'
 import TikTok from './icons/TikTok'
 import Reveal from './Reveal'
 import { services } from '../data/services'
@@ -77,35 +77,52 @@ export default function Contact() {
 
             {/* Branches */}
             <div className="mt-6 space-y-3">
-              {/* Main branch */}
-              <div className="flex items-start gap-2.5">
-                <MapPin size={18} className="mt-0.5 shrink-0 text-champagne" />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-cloud font-medium">Wattala</span>
-                    <span className="rounded-full bg-champagne/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-champagne">
-                      Main
-                    </span>
+              {STUDIO.branches.map((branch) => {
+                const mapsHref = branch.main
+                  ? mapsLink()
+                  : branch.maps || null
+                return (
+                  <div key={branch.name} className="flex items-start gap-2.5">
+                    <MapPin
+                      size={18}
+                      className={`mt-0.5 shrink-0 ${
+                        branch.main ? 'text-champagne' : 'text-cloud/30'
+                      }`}
+                    />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={
+                            branch.main ? 'font-medium text-cloud' : 'font-medium text-cloud/65'
+                          }
+                        >
+                          {branch.name}
+                        </span>
+                        {branch.main && (
+                          <span className="rounded-full bg-champagne/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-champagne">
+                            Main
+                          </span>
+                        )}
+                      </div>
+                      {branch.address && (
+                        mapsHref ? (
+                          <a
+                            href={mapsHref}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-0.5 inline-block text-sm text-cloud/50 underline-offset-4
+                                       transition-colors hover:text-champagne hover:underline"
+                          >
+                            {branch.address}
+                          </a>
+                        ) : (
+                          <p className="mt-0.5 text-sm text-cloud/50">{branch.address}</p>
+                        )
+                      )}
+                    </div>
                   </div>
-                  <a
-                    href={mapsLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-0.5 inline-block text-sm text-cloud/50 underline-offset-4
-                               transition-colors hover:text-champagne hover:underline"
-                  >
-                    {STUDIO.address}
-                  </a>
-                </div>
-              </div>
-
-              {/* Other branches */}
-              {['Dehiwela', 'Badulla', 'Bibila'].map((branch) => (
-                <div key={branch} className="flex items-center gap-2.5">
-                  <MapPin size={18} className="shrink-0 text-cloud/30" />
-                  <span className="text-cloud/65">{branch}</span>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </Reveal>
 
@@ -114,6 +131,11 @@ export default function Contact() {
             <ul className="mt-6 flex flex-wrap gap-3">
               {[
                 { icon: Mail, href: `mailto:${STUDIO.email}`, label: STUDIO.email },
+                {
+                  icon: Phone,
+                  href: `tel:${STUDIO.phone.replace(/\s/g, '')}`,
+                  label: `Call ${STUDIO.phone}`,
+                },
                 {
                   icon: Instagram,
                   href: STUDIO.instagram,
