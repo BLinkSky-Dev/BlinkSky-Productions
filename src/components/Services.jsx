@@ -108,7 +108,7 @@ export default function Services() {
                                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-champagne
                                focus-visible:ring-offset-2 focus-visible:ring-offset-ink-950"
                   >
-                    <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg sm:h-16 sm:w-16">
+                    {/* <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg sm:h-16 sm:w-16">
                       <img
                         src={s.image}
                         alt=""
@@ -119,7 +119,7 @@ export default function Services() {
                                     ${isOpen ? 'scale-110' : 'group-hover:scale-105'}`}
                       />
                       <span className="absolute inset-0 bg-ink-950/25" />
-                    </span>
+                    </span> */}
 
                     <span className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
                       <span className="hidden font-sans text-[11px] tabular-nums tracking-widest text-cloud/40 sm:inline">
@@ -202,7 +202,7 @@ export default function Services() {
                               aria-label={`View ${s.title} photo ${gi + 1}`}
                             >
                               <SmartImage
-                                src={src}
+                                src={src} 
                                 alt={`${s.title} — frame ${gi + 1}`}
                                 className="transition-transform duration-700 ease-smooth group-hover/shot:scale-105"
                               />
