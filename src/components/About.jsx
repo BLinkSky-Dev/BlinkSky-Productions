@@ -12,7 +12,7 @@ const stats = [
 
 const founder = {
   name: 'M G Sandosh',
-  title: 'Founder & Creative Director',
+  title: 'Founder',
   photo: '/Founder.jpeg',
   bio1: 'Sandosh is a generational photographer. Families find him once, for a wedding, and come back years later for the next one. That through-line is what he works toward: images that get framed and passed down, not uploaded and forgotten.',
   bio2: 'He got his start at Sisiras Studio before founding BlinkSky Production, which has since grown into BlinkSky Media and BlinkSky Salon. Eight years in, he still shoots every project himself.',
@@ -290,7 +290,7 @@ export default function About() {
         {/* Founder — open editorial split */}
         <div className="mt-24">
           <Reveal>
-            <p className="eyebrow mb-10 text-center">The Founder</p>
+            <p className="eyebrow mb-10 text-center">The Creator</p>
           </Reveal>
 
           <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
