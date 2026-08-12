@@ -78,7 +78,7 @@ const brands = [
       'Photo restore, printing, digital banners, framing, creative print & digital for every brief.',
   },
   {
-    name: 'Bridal Dressing By Awshalya',
+    name: 'Bridal Dressing By Kawshalya',
     logo: '/logo-awshalya.png',
     logoBg:
       'bg-[linear-gradient(135deg,#051820_0%,#07232f_35%,#061f2b_50%,#07232f_65%,#051820_100%)]',
