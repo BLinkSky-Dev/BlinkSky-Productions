@@ -1,4 +1,5 @@
-﻿import { Instagram, Camera, Phone } from 'lucide-react'
+﻿import { useEffect, useRef, useState } from 'react'
+import { Instagram, Camera, Phone } from 'lucide-react'
 import Reveal from './Reveal'
 import { studio } from '../data/socials'
 
@@ -79,6 +80,36 @@ function WhatsAppIcon({ size = 18 }) {
 }
 
 export default function About() {
+  const [active, setActive] = useState(0)
+  const pausedRef = useRef(false)
+  const resumeTimer = useRef(null)
+  const selected = brands[active]
+  const SelectedIcon = selected.icon
+
+  useEffect(() => {
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    if (reduceMotion) return
+
+    const id = setInterval(() => {
+      if (pausedRef.current || document.hidden || desktop.matches) return
+      setActive((i) => (i + 1) % brands.length)
+    }, 2000)
+
+    return () => clearInterval(id)
+  }, [])
+
+  const selectBrand = (i) => {
+    setActive(i)
+    pausedRef.current = true
+    clearTimeout(resumeTimer.current)
+    resumeTimer.current = setTimeout(() => {
+      pausedRef.current = false
+    }, 8000)
+  }
+
+  useEffect(() => () => clearTimeout(resumeTimer.current), [])
+
   return (
     <section id="about" className="relative py-24 md:py-32 bg-ink-900/40">
       <div className="container-x">
@@ -224,25 +255,116 @@ export default function About() {
             </h2>
             <p className="mx-auto mt-4 max-w-md text-center leading-relaxed text-cloud/55">
               Six brands, one standard of work.
+              <span className="lg:hidden"> Tap a frame anytime.</span>
             </p>
           </Reveal>
 
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Mobile / tablet — contact sheet + autoplay */}
+          <Reveal delay={0.08} className="lg:hidden">
+            <div className="mx-auto mt-10 max-w-lg rounded-sm border border-ink-600/80 bg-ink-950/80 p-2.5 sm:p-3">
+              <div
+                className="grid grid-cols-2 gap-2 sm:gap-2.5"
+                role="tablist"
+                aria-label="BlinkSky brands"
+              >
+                {brands.map((b, i) => {
+                  const Icon = b.icon
+                  const on = i === active
+                  return (
+                    <button
+                      key={b.name}
+                      type="button"
+                      role="tab"
+                      aria-selected={on}
+                      aria-controls="brand-caption"
+                      aria-label={b.name}
+                      onClick={() => selectBrand(i)}
+                      className={`group relative flex aspect-[4/3] items-center justify-center
+                                  overflow-hidden rounded-[2px] transition-all duration-300 cursor-pointer
+                                  ${on
+                                    ? 'ring-2 ring-champagne ring-offset-2 ring-offset-ink-950'
+                                    : 'ring-1 ring-ink-700/80 opacity-80 active:opacity-100'}`}
+                    >
+                      <span className={`absolute inset-0 ${b.logoBg ?? 'bg-ink-800'}`} />
+                      <span className="absolute left-1.5 top-1.5 z-20 font-sans text-[9px]
+                                       tabular-nums tracking-wider text-cloud/40 mix-blend-difference
+                                       sm:text-[10px]">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      {b.logo ? (
+                        <img
+                          src={b.logo}
+                          alt=""
+                          className="relative z-10 h-[70%] w-[70%] object-contain
+                                     transition-transform duration-500 group-active:scale-105"
+                        />
+                      ) : (
+                        <Icon size={28} className="relative z-10 text-champagne" strokeWidth={1.3} />
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+
+              <div
+                id="brand-caption"
+                role="tabpanel"
+                key={selected.name}
+                className="mt-2.5 border-t border-dashed border-ink-600/70 px-3 pb-1 pt-4
+                           animate-[fade-up_0.3s_ease-out] sm:px-4"
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden
+                                rounded-[2px] ${selected.logoBg ?? 'bg-ink-800'}`}
+                  >
+                    {selected.logo ? (
+                      <img
+                        src={selected.logo}
+                        alt=""
+                        className="h-[72%] w-[72%] object-contain"
+                      />
+                    ) : (
+                      <SelectedIcon size={22} className="text-champagne" strokeWidth={1.3} />
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="font-sans text-[10px] uppercase tracking-[0.18em] text-champagne/70">
+                      Frame {String(active + 1).padStart(2, '0')}
+                    </p>
+                    <h3 className="mt-1 font-serif text-xl leading-tight text-cloud sm:text-2xl">
+                      {selected.name}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-cloud/55">
+                      {selected.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Desktop — original card grid */}
+          <div className="mt-12 hidden gap-5 lg:grid lg:grid-cols-3">
             {brands.map((b, i) => {
               const Icon = b.icon
               return (
                 <Reveal key={b.name} delay={i * 0.08}>
-                  <div className="group relative overflow-hidden rounded-2xl border border-ink-700
-                                  transition-all duration-500
-                                  hover:border-champagne/50
-                                  hover:shadow-[0_0_48px_rgba(212,175,55,0.14)]">
-
-                    {/* Logo showcase area */}
-                    <div className={`relative flex h-56 w-full items-center justify-center overflow-hidden ${b.logoBg ?? 'bg-ink-800'}`}>
-                      {/* Ambient glow */}
-                      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500
-                                      group-hover:opacity-100
-                                      bg-[radial-gradient(ellipse_60%_50%_at_50%_60%,rgba(212,175,55,0.18),transparent)]" />
+                  <div
+                    className="group relative overflow-hidden rounded-2xl border border-ink-700
+                               transition-all duration-500
+                               hover:border-champagne/50
+                               hover:shadow-[0_0_48px_rgba(212,175,55,0.14)]"
+                  >
+                    <div
+                      className={`relative flex h-56 w-full items-center justify-center overflow-hidden
+                                  ${b.logoBg ?? 'bg-ink-800'}`}
+                    >
+                      <div
+                        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500
+                                   group-hover:opacity-100
+                                   bg-[radial-gradient(ellipse_60%_50%_at_50%_60%,rgba(212,175,55,0.18),transparent)]"
+                      />
                       {b.logo ? (
                         <img
                           src={b.logo}
@@ -251,16 +373,19 @@ export default function About() {
                                      transition-transform duration-500 ease-out group-hover:scale-110"
                         />
                       ) : (
-                        <Icon size={40} className="relative z-10 text-champagne transition-transform duration-500 group-hover:scale-110" strokeWidth={1.2} />
+                        <Icon
+                          size={40}
+                          className="relative z-10 text-champagne transition-transform duration-500
+                                     group-hover:scale-110"
+                          strokeWidth={1.2}
+                        />
                       )}
                     </div>
 
-                    {/* Text */}
                     <div className="border-t border-ink-700/60 bg-ink-900/80 px-6 py-5 text-center">
                       <h3 className="font-serif text-xl text-cloud">{b.name}</h3>
                       <p className="mt-2 text-sm leading-relaxed text-cloud/50">{b.description}</p>
                     </div>
-
                   </div>
                 </Reveal>
               )

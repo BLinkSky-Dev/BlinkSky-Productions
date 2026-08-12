@@ -95,7 +95,9 @@
       transparent
     );
   }
-  .marquee-pause:hover .marquee-track {
+  .marquee-pause:hover .marquee-track,
+  .marquee-pause:active .marquee-track,
+  .marquee-pause:focus-within .marquee-track {
     animation-play-state: paused;
   }
   @keyframes marquee {
