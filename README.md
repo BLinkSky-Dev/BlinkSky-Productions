@@ -3,8 +3,8 @@
 A cinematic, dark-mode portfolio site for a photography & videography studio.
 Built with **Vite + React**, **Tailwind CSS**, and **Framer Motion**.
 
-Sections: Hero → Services → Portfolio (filterable + lightbox) → Instagram feed
-→ About → Contact → Footer.
+Sections: Hero → Services → Portfolio → Instagram → About → Brands →
+Google Reviews → Contact → Footer.
 
 ---
 
@@ -66,6 +66,28 @@ Service names and blurbs live in `src/data/services.js`.
 Contact details and all social links (email, phone, Instagram, Facebook,
 TikTok) live in **one file** — `src/data/socials.js`. Edit there and the nav,
 Instagram section, contact list and footer all update.
+
+### Google reviews
+
+The **Google Reviews** section (`#reviews`) shows client feedback.
+
+1. **No API (default)** — edit curated reviews in `src/data/reviews.js`
+   (`fallbackReviews`, `rating`, `reviewCount`). Set `googleBusiness.placeId`
+   (or `VITE_GOOGLE_PLACE_ID`) so “Leave a review” / “See all” open the right
+   Google listing.
+2. **Live from Google** — enable Places API (Place Details), then set on the
+   host (server-only, no `VITE_` prefix on the key):
+
+   ```
+   GOOGLE_PLACES_API_KEY=…
+   GOOGLE_PLACE_ID=ChIJ…
+   VITE_GOOGLE_REVIEWS_PROXY_URL=/api/google-reviews
+   VITE_GOOGLE_PLACE_ID=ChIJ…   # optional; powers review deep links
+   ```
+
+   The site calls `/api/google-reviews` (see `api/google-reviews.js`). Google
+   returns at most 5 reviews per request; if the proxy fails, curated
+   fallbacks are used.
 
 ### Brand / "trusted by" logos (auto-updating)
 
