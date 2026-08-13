@@ -36,7 +36,7 @@ const brands = [
     icon: Camera,
     logo: '/logo-portrait.png',
     logoBg: 'bg-transparent',
-    description: 'Photography studio capturing weddings, portraits and commercial work across Sri Lanka.',
+    description: 'Photography studio capturing weddings, portraits and clothing work across Sri Lanka.',
   },
   {
     name: 'BlinkSky Media',
@@ -270,7 +270,7 @@ export default function About() {
             </Reveal>
             <Reveal delay={0.15}>
               <p className="mt-4 leading-relaxed text-cloud/65">
-                Whether it's a bridal shoot or a full commercial production, the approach stays the same. We pay attention to the details that would otherwise get missed, and we show up the same way regardless of the size of the job.
+                Whether it's a bridal shoot or a clothing campaign, the approach stays the same. We pay attention to the details that would otherwise get missed, and we show up the same way regardless of the size of the job.
               </p>
             </Reveal>
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
+import { ArrowRight, ChevronDown } from 'lucide-react'
 import { services, serviceGalleryBase } from '../data/services'
 import SectionHeading from './SectionHeading'
 import SmartImage from './SmartImage'
@@ -202,7 +202,7 @@ export default function Services() {
                               aria-label={`View ${s.title} photo ${gi + 1}`}
                             >
                               <SmartImage
-                                src={src} 
+                                src={src}
                                 alt={`${s.title} — frame ${gi + 1}`}
                                 className="transition-transform duration-700 ease-smooth group-hover/shot:scale-105"
                               />
@@ -212,6 +212,21 @@ export default function Services() {
                           </li>
                         ))}
                       </ul>
+
+                      {gallery.length > 0 && (
+                        <div className="mt-5 flex justify-center sm:mt-6">
+                          <button
+                            type="button"
+                            tabIndex={isOpen ? 0 : -1}
+                            onClick={() => openLightbox(gallery, s.title, 0)}
+                            className="btn-ghost"
+                            aria-label={`See more ${s.title} photos`}
+                          >
+                            See more
+                            <ArrowRight size={16} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
