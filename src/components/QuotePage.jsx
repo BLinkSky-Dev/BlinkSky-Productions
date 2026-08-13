@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Mail, MapPin, MessageCircle, Phone, Send, X } from 'lucide-react'
-import { services } from '../data/services'
+import { casualPackages, services } from '../data/services'
 import { mapsLink, studio, whatsappLink } from '../data/socials'
 
 // ─── Static data ─────────────────────────────────────────────────────────────
@@ -48,6 +48,7 @@ const STEP1_SPAN = {
   commercial: 'lg:col-span-2 lg:row-span-2',
   birthday:   'lg:row-span-2',
   graduation: 'lg:row-span-2',
+  casual:     'lg:col-span-2 lg:row-span-2',
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -163,6 +164,7 @@ const STEP_TITLES = {
   bridal:  { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
   birthday:{ 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
   grad:    { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
+  casual:  { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
   commercial: { 2: 'About your project', 3: 'Get in touch' },
 }
 
@@ -173,6 +175,7 @@ function stepTitle(type, step) {
   if (type === 'Bridal Portraits' || type === 'Model Photography') return STEP_TITLES.bridal[step] ?? ''
   if (type === 'Birthday Photography')    return STEP_TITLES.birthday[step] ?? ''
   if (type === 'Graduation Portraits') return STEP_TITLES.grad[step] ?? ''
+  if (type === 'Casual Shoots')        return STEP_TITLES.casual[step] ?? ''
   return ''
 }
 
@@ -621,12 +624,12 @@ export default function QuotePage() {
                 </div>
               )}
 
-              {/* ══ Bridal / Model — Step 2: Packages ════════════════════════ */}
-              {step === 2 && (data.shootType === 'Bridal Portraits' || data.shootType === 'Model Photography') && (
+              {/* ══ Bridal / Model / Casual — Step 2: Packages ═══════════════ */}
+              {step === 2 && (data.shootType === 'Bridal Portraits' || data.shootType === 'Model Photography' || data.shootType === 'Casual Shoots') && (
                 <div>
-                  <p className="mb-5 text-cloud/50">30–90 sec reel included with every package.</p>
+                  <p className="mb-5 text-cloud/50">30–60 sec reel included with every package.</p>
                   <div className="grid gap-4 sm:grid-cols-3">
-                    {BRIDAL_PKGS.map((p) => {
+                    {(data.shootType === 'Casual Shoots' ? casualPackages : BRIDAL_PKGS).map((p) => {
                       const label = `${p.photos} Photos — ${lkr(p.price)}`
                       return (
                         <PkgCard
@@ -635,7 +638,7 @@ export default function QuotePage() {
                           onClick={() => set('package', label)}
                           name={`${p.photos} Photos`}
                           price={lkr(p.price)}
-                          items={['30–90 sec reel included']}
+                          items={['30–60 sec reel included']}
                         />
                       )
                     })}

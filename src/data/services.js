@@ -5,7 +5,15 @@ import {
   Building2,
   Cake,
   GraduationCap,
+  Sun,
 } from 'lucide-react'
+
+/** Casual Shoots — photos + one 30–60 sec reel. Shared with the quote wizard. */
+export const casualPackages = [
+  { photos: 10, price: 8000 },
+  { photos: 15, price: 11000 },
+  { photos: 20, price: 14000 },
+]
 
 /**
  * What We Shoot accordion categories.
@@ -42,6 +50,15 @@ export const services = [
     image: '/gallery/services/model/01.jpg',
     blurb:
       'Portfolio and editorial work that makes the camera pay attention. Studio or location, whatever the look needs.',
+    tags: [],
+  },
+  {
+    id: 'casual',
+    title: 'Casual Shoots',
+    icon: Sun,
+    image: '/gallery/services/casual/01.jpg',
+    blurb:
+      'Casual shoots are a great way to capture your everyday moments. We can shoot at your home, office, or any other location you choose. We can also shoot at our studio if you prefer.',
     tags: [],
   },
   {

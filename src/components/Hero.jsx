@@ -142,7 +142,7 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.9 }}
         >
-          BlinkSky Productions shoots weddings, bridal portraits, model portfolios, commercial campaigns and birthdays. Every image is made to be worth holding onto.
+          BlinkSky Productions shoots weddings, bridal portraits, casual shoots, model portfolios, commercial campaigns and birthdays. Every image is made to be worth holding onto.
         </motion.p>
 
         <motion.div

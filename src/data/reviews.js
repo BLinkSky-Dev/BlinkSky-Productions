@@ -85,4 +85,11 @@ export const fallbackReviews = [
     text: 'Professional, on time, and genuinely creative. The pre-wedding frames look like a film still. Grateful we found them in Wattala.',
     
   },
+  {
+    id: 'g6',
+    author: 'Abi Shalini',
+    rating: 5,
+    text: 'Excellent photography and very professional service. The quality, creativity, and attention to detail were outstanding. Truly happy with the results! Highly recommended. Best of luck santhosh ❤️',
+    
+  },
 ]

@@ -64,7 +64,7 @@ function ReviewSkeleton() {
  * fallbacks from src/data/reviews.js.
  */
 export default function Reviews() {
-  const { status, rating, reviewCount, profileUrl, reviews } = useGoogleReviews()
+  const { status, rating, profileUrl, reviews } = useGoogleReviews()
 
   return (
     <section id="reviews" className="relative py-24 md:py-32 bg-ink-900/40">
@@ -79,16 +79,11 @@ export default function Reviews() {
           <Reveal delay={0.08}>
             <div className="flex items-center gap-3">
               <GoogleG className="h-7 w-7 shrink-0" />
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="font-serif text-4xl leading-none text-champagne">
-                    {Number(rating).toFixed(1)}
-                  </span>
-                  <Stars value={rating} size={15} />
-                </div>
-                <p className="mt-1 text-xs text-cloud/50">
-                  {reviewCount} Google review{reviewCount === 1 ? '' : 's'}
-                </p>
+              <div className="flex items-baseline gap-2">
+                <span className="font-serif text-4xl leading-none text-champagne">
+                  {Number(rating).toFixed(1)}
+                </span>
+                <Stars value={rating} size={15} />
               </div>
             </div>
           </Reveal>
