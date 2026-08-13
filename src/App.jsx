@@ -6,6 +6,7 @@ import Portfolio from './components/Portfolio'
 import InstagramFeed from './components/InstagramFeed'
 import About from './components/About'
 import Brands from './components/Brands'
+import Reviews from './components/Reviews'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
 import FloatingCTA from './components/FloatingCTA'
@@ -30,6 +31,7 @@ export default function App() {
         <InstagramFeed />
         <About />
         <Brands />
+        <Reviews />
         <Contact />
       </main>
       <Footer />

@@ -10,6 +10,7 @@ const links = [
   { href: '#work', label: 'Work' },
   { href: '#instagram', label: 'Instagram' },
   { href: '#about', label: 'About' },
+  { href: '#reviews', label: 'Reviews' },
   { href: '#contact', label: 'Contact' },
 ]
 
@@ -74,7 +75,7 @@ export default function Nav() {
           <Logo size="md" className="-translate-x-8 sm:-translate-x-4 md:translate-x-0" />
 
           <div className="hidden items-center gap-9 md:flex">
-            {links.slice(0, 4).map((l) => (
+            {links.filter((l) => l.href !== '#contact').map((l) => (
               <a
                 key={l.href}
                 href={l.href}
