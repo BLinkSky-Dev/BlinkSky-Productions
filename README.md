@@ -46,7 +46,7 @@ When the Instagram API is unavailable, the site loads local folders:
 |--------|--------|
 | **Selected Work** | `public/gallery/selected-work/` |
 | **Latest on Instagram** | `public/gallery/instagram/` |
-| **Services** | `public/gallery/services/` |
+| **Services (What We Shoot)** | `public/gallery/services/<category>/` — one folder per shoot type (`wedding`, `bridal`, `model`, `birthday`, `commercial`, `graduation`). `01.jpg` is the accordion thumb. |
 
 Drop JPGs/PNGs/WebPs into those folders (prefer `01.jpg`, `02.jpg`, …), then run:
 
