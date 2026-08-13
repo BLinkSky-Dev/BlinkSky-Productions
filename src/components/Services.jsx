@@ -72,7 +72,7 @@ export default function Services() {
         <SectionHeading
           eyebrow="What We Shoot"
           title="Whatever the occasion, it deserves a proper frame."
-          intro="Six services, one level of care. Open a category to see frames from that world."
+          intro="Every kind of shoot, one level of care. Open a category to see frames from that world."
           align="center"
         />
 

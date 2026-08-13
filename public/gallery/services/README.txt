@@ -5,6 +5,7 @@ Each shoot type has its own folder:
   wedding/
   bridal/
   model/
+  casual/
   birthday/
   commercial/
   graduation/

@@ -26,6 +26,11 @@ export const categoryRules = [
     keywords: ['wedding', 'weddingday', 'weddingshoot', 'nikah', 'homecoming', 'engagement', 'vows'],
   },
   {
+    id: 'casual',
+    label: 'Casual',
+    keywords: ['casual', 'casualshoot', 'lifestyle', 'everyday'],
+  },
+  {
     id: 'model',
     label: 'Model',
     keywords: ['model', 'modelshoot', 'portfolio', 'editorial', 'fashion', 'portrait'],

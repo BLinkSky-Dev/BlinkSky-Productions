@@ -1,7 +1,7 @@
 [
   {
     "file": "01.jpg",
-    "id": "local-services-bridal-1",
+    "id": "local-services-casual-1",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
@@ -10,16 +10,7 @@
   },
   {
     "file": "02.jpg",
-    "id": "local-services-bridal-2",
-    "caption": "",
-    "permalink": "https://instagram.com/",
-    "media_type": "IMAGE",
-    "like_count": 0,
-    "comments_count": 0
-  },
-  {
-    "file": "03.jpeg",
-    "id": "local-services-bridal-3",
+    "id": "local-services-casual-2",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
@@ -28,7 +19,7 @@
   },
   {
     "file": "03.jpg",
-    "id": "local-services-bridal-4",
+    "id": "local-services-casual-3",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
@@ -37,7 +28,7 @@
   },
   {
     "file": "04.jpg",
-    "id": "local-services-bridal-5",
+    "id": "local-services-casual-4",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
@@ -46,7 +37,7 @@
   },
   {
     "file": "05.jpg",
-    "id": "local-services-bridal-6",
+    "id": "local-services-casual-5",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
@@ -55,7 +46,7 @@
   },
   {
     "file": "06.jpg",
-    "id": "local-services-bridal-7",
+    "id": "local-services-casual-6",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
@@ -64,7 +55,7 @@
   },
   {
     "file": "07.jpg",
-    "id": "local-services-bridal-8",
+    "id": "local-services-casual-7",
     "caption": "",
     "permalink": "https://instagram.com/",
     "media_type": "IMAGE",
