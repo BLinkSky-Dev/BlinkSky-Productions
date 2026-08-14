@@ -206,8 +206,7 @@ export default function AdminPage() {
           </p>
           {health && !health.writable && (
             <p className="mt-4 rounded-xl border border-champagne/30 bg-champagne/10 px-4 py-3 text-sm text-cloud/80">
-              Admin saves only work with <code className="text-champagne">npm run dev</code> and
-              {' '}<code className="text-champagne">ADMIN_PASSWORD</code> set in <code className="text-champagne">.env</code>.
+              Admin saves only work while <code className="text-champagne">npm run dev</code> is running.
             </p>
           )}
           <form
@@ -215,7 +214,7 @@ export default function AdminPage() {
             onSubmit={(e) => {
               e.preventDefault()
               setError('')
-              setPassword(pwInput)
+              setPassword(pwInput.trim())
             }}
           >
             <label className="block text-sm text-cloud/65" htmlFor="admin-password">

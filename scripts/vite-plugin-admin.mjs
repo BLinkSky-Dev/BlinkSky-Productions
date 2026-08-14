@@ -81,11 +81,13 @@ function readBody(req) {
   })
 }
 
-function checkAuth(password, expected) {
-  return Boolean(expected) && password === expected
+const ADMIN_PASSWORD = '1234'
+
+function checkAuth(password) {
+  return String(password ?? '').trim() === ADMIN_PASSWORD
 }
 
-function attachRoutes(server, { root, password }) {
+function attachRoutes(server, { root }) {
   server.middlewares.use(async (req, res, next) => {
     const url = req.url?.split('?')[0] || ''
     if (!url.startsWith('/api/admin')) return next()
@@ -98,19 +100,15 @@ function attachRoutes(server, { root, password }) {
 
     try {
       if (req.method === 'GET' && url === '/api/admin/health') {
-        send(res, 200, { ok: true, writable: Boolean(password) })
+        send(res, 200, { ok: true, writable: true })
         return
       }
 
       const raw = req.method === 'GET' || req.method === 'HEAD' ? '{}' : await readBody(req)
       const body = raw ? JSON.parse(raw) : {}
       const submitted = body.password || req.headers['x-admin-password']
-      if (!checkAuth(submitted, password)) {
-        send(res, 401, {
-          error: password
-            ? 'Wrong password.'
-            : 'Set ADMIN_PASSWORD in .env to enable the admin panel.',
-        })
+      if (!checkAuth(submitted)) {
+        send(res, 401, { error: 'Wrong password.' })
         return
       }
 
@@ -229,14 +227,14 @@ function attachRoutes(server, { root, password }) {
   })
 }
 
-export function adminApiPlugin({ root, password }) {
+export function adminApiPlugin({ root }) {
   return {
     name: 'blinksky-admin-api',
     configureServer(server) {
-      attachRoutes(server, { root, password })
+      attachRoutes(server, { root })
     },
     configurePreviewServer(server) {
-      attachRoutes(server, { root, password })
+      attachRoutes(server, { root })
     },
   }
 }
