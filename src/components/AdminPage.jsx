@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Check, Plus, Trash2, Upload } from 'lucide-react'
 import { ICON_NAMES, iconFor } from '../data/serviceIcons'
+import { serviceGalleryBase } from '../data/services'
 import { SERVICES_UPDATED } from '../hooks/useServices'
 
 const SESSION_KEY = 'blinksky-admin-pw'
@@ -48,6 +49,41 @@ async function adminFetch(path, password, payload = {}) {
   return json
 }
 
+async function loadExistingPhotos(service) {
+  if (!service?.id) return service?.image ? [service.image] : []
+  const fromCatalog = Array.isArray(service.gallery) ? service.gallery.filter(Boolean) : []
+  const base = serviceGalleryBase(service.id)
+  try {
+    const res = await fetch(`${base}/meta.json`)
+    if (res.ok) {
+      const meta = await res.json()
+      if (Array.isArray(meta) && meta.length) {
+        const fromFolder = meta
+          .map((m) => (m?.file ? `${base}/${m.file}` : null))
+          .filter(Boolean)
+        const extra = fromCatalog.filter((url) => !fromFolder.includes(url))
+        const urls = [...fromFolder, ...extra]
+        if (service.image && !urls.includes(service.image)) urls.unshift(service.image)
+        return urls
+      }
+    }
+  } catch {
+    /* cover / catalog only */
+  }
+  if (fromCatalog.length) return fromCatalog
+  return service.image ? [service.image] : []
+}
+
+function photoPreviewSrc(photo) {
+  const name = String(photo.name || '').toLowerCase()
+  const mime = name.endsWith('.png')
+    ? 'image/png'
+    : name.endsWith('.webp')
+      ? 'image/webp'
+      : 'image/jpeg'
+  return `data:${mime};base64,${photo.data}`
+}
+
 function toForm(service) {
   return {
     id: service.id,
@@ -76,6 +112,8 @@ export default function AdminPage() {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [photos, setPhotos] = useState([])
+  const [existingPhotos, setExistingPhotos] = useState([])
+  const [removedPhotos, setRemovedPhotos] = useState([])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -111,6 +149,8 @@ export default function AdminPage() {
     setEditing('new')
     setForm(emptyForm())
     setPhotos([])
+    setExistingPhotos([])
+    setRemovedPhotos([])
     setError('')
     setNotice('')
   }
@@ -119,8 +159,11 @@ export default function AdminPage() {
     setEditing(service.id)
     setForm(toForm(service))
     setPhotos([])
+    setExistingPhotos(service.image ? [service.image] : [])
+    setRemovedPhotos([])
     setError('')
     setNotice('')
+    loadExistingPhotos(service).then(setExistingPhotos)
   }
 
   const addPackage = () => {
@@ -150,10 +193,12 @@ export default function AdminPage() {
       const json = await adminFetch('/api/admin/service', password, {
         service: form,
         photos,
+        removePhotos: removedPhotos,
       })
       setCatalog(json.catalog.services)
       setEditing(null)
       setPhotos([])
+      setRemovedPhotos([])
       setNotice(`${form.title} is live on Get Quote and What We Shoot.`)
       window.dispatchEvent(new Event(SERVICES_UPDATED))
     } catch (err) {
@@ -330,7 +375,53 @@ export default function AdminPage() {
 
             <div>
               <label className="mb-2 block text-sm text-cloud/65">Photos</label>
-              <p className="mb-3 text-xs text-cloud/45">JPG, PNG or WebP. First photo becomes the cover.</p>
+              <p className="mb-3 text-xs text-cloud/45">
+                Tap the bin to remove a frame. Save to apply. JPG, PNG or WebP.
+              </p>
+              {(existingPhotos.length > 0 || photos.length > 0) && (
+                <ul className="mb-4 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                  {existingPhotos.map((src) => (
+                    <li
+                      key={src}
+                      className="relative aspect-square overflow-hidden rounded-lg border border-ink-700 bg-ink-900"
+                    >
+                      <img src={src} alt="" className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        aria-label="Remove photo"
+                        onClick={() => {
+                          setExistingPhotos((prev) => prev.filter((url) => url !== src))
+                          setRemovedPhotos((prev) => (prev.includes(src) ? prev : [...prev, src]))
+                        }}
+                        className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full
+                                   bg-ink-950/80 text-cloud/80 hover:bg-red-500/90 hover:text-white"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </li>
+                  ))}
+                  {photos.map((photo, i) => (
+                    <li
+                      key={`new-${photo.name}-${i}`}
+                      className="relative aspect-square overflow-hidden rounded-lg border border-champagne/40 bg-ink-900"
+                    >
+                      <img src={photoPreviewSrc(photo)} alt="" className="h-full w-full object-cover" />
+                      <span className="absolute bottom-1 left-1 rounded bg-ink-950/80 px-1.5 py-0.5 text-[10px] uppercase tracking-widest text-champagne">
+                        New
+                      </span>
+                      <button
+                        type="button"
+                        aria-label="Remove new photo"
+                        onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="absolute right-1 top-1 flex h-9 w-9 items-center justify-center rounded-full
+                                   bg-ink-950/80 text-cloud/80 hover:bg-red-500/90 hover:text-white"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <label className="btn-ghost inline-flex cursor-pointer">
                 <Upload size={16} />
                 Upload photos
@@ -347,7 +438,9 @@ export default function AdminPage() {
                 />
               </label>
               {photos.length > 0 && (
-                <p className="mt-3 text-sm text-cloud/60">{photos.length} new photo{photos.length === 1 ? '' : 's'} ready to save.</p>
+                <p className="mt-3 text-sm text-cloud/60">
+                  {photos.length} new photo{photos.length === 1 ? '' : 's'} ready to save.
+                </p>
               )}
             </div>
 
@@ -431,6 +524,16 @@ export default function AdminPage() {
                 <Check size={16} /> {busy ? 'Saving…' : 'Save service'}
               </button>
               <button type="button" onClick={() => setEditing(null)} className="btn-ghost">Cancel</button>
+              {editing !== 'new' && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => remove({ id: form.id, title: form.title })}
+                  className="btn-ghost disabled:opacity-40"
+                >
+                  <Trash2 size={16} /> Delete
+                </button>
+              )}
             </div>
           </form>
         ) : (
@@ -468,11 +571,14 @@ export default function AdminPage() {
                     </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <button type="button" onClick={() => startEdit(s)} className="btn-ghost">Edit</button>
-                      {!s.locked && (
-                        <button type="button" onClick={() => remove(s)} className="btn-ghost">
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        disabled={busy}
+                        onClick={() => remove(s)}
+                        className="btn-ghost disabled:opacity-40"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
                     </div>
                   </li>
                 )

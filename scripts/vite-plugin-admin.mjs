@@ -49,6 +49,23 @@ function writeMeta(dir) {
   return files
 }
 
+function unlinkServicePhoto(dir, id, url) {
+  let pathname = String(url || '').split('?')[0]
+  try {
+    if (/^https?:\/\//i.test(pathname)) pathname = new URL(pathname).pathname
+  } catch {
+    return
+  }
+  const prefix = `/gallery/services/${id}/`
+  if (!pathname.startsWith(prefix)) return
+  const filename = path.basename(pathname)
+  if (!IMAGE_EXT.has(path.extname(filename).toLowerCase())) return
+  const resolvedDir = path.resolve(dir)
+  const resolved = path.resolve(dir, filename)
+  if (resolved !== resolvedDir && !resolved.startsWith(`${resolvedDir}${path.sep}`)) return
+  if (fs.existsSync(resolved)) fs.unlinkSync(resolved)
+}
+
 function slugify(title) {
   return String(title || '')
     .toLowerCase()
@@ -152,6 +169,9 @@ function attachRoutes(server, { root }) {
         const dir = path.join(root, 'public/gallery/services', id)
         fs.mkdirSync(dir, { recursive: true })
 
+        const removePhotos = Array.isArray(body.removePhotos) ? body.removePhotos : []
+        for (const url of removePhotos) unlinkServicePhoto(dir, id, url)
+
         const photos = Array.isArray(body.photos) ? body.photos : []
         for (const photo of photos) {
           const ext = path.extname(String(photo.name || '')).toLowerCase() || '.jpg'
@@ -169,8 +189,10 @@ function attachRoutes(server, { root }) {
         }
 
         const files = writeMeta(dir)
-        const cover = incoming.image
-          || (files[0] ? `/gallery/services/${id}/${files[0]}` : existing?.image || '')
+        const remaining = files.map((file) => `/gallery/services/${id}/${file}`)
+        const cover = remaining.includes(incoming.image)
+          ? incoming.image
+          : remaining[0] || ''
 
         const saved = {
           id,
@@ -208,10 +230,6 @@ function attachRoutes(server, { root }) {
         const existing = catalog.services.find((s) => s.id === id)
         if (!existing) {
           send(res, 404, { error: 'Service not found.' })
-          return
-        }
-        if (existing.locked) {
-          send(res, 400, { error: 'Built-in services can be edited, not deleted.' })
           return
         }
         catalog.services = catalog.services.filter((s) => s.id !== id)
