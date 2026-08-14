@@ -35,7 +35,7 @@ async function loadServiceGallery(service) {
  * from public/gallery/services/<id>/.
  */
 export default function Services() {
-  const [expandedId, setExpandedId] = useState(services[0]?.id ?? null)
+  const [expandedId, setExpandedId] = useState(null)
   const [galleries, setGalleries] = useState(() =>
     Object.fromEntries(services.map((s) => [s.id, s.image ? [s.image] : []])),
   )
@@ -182,14 +182,7 @@ export default function Services() {
 
                       <ul className="mt-5 grid grid-cols-2 gap-2 sm:mt-6 sm:grid-cols-3 sm:gap-3">
                         {gallery.map((src, gi) => (
-                          <li
-                            key={src}
-                            className={
-                              gi === 0
-                                ? 'col-span-2 aspect-[16/10] sm:col-span-1 sm:aspect-square'
-                                : 'aspect-square'
-                            }
-                          >
+                          <li key={src} className="aspect-square">
                             <button
                               type="button"
                               tabIndex={isOpen ? 0 : -1}
