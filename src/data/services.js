@@ -2,9 +2,9 @@ import {
   Camera,
   Heart,
   Gem,
-  Building2,
   Cake,
   GraduationCap,
+  Shirt,
   Sun,
 } from 'lucide-react'
 
@@ -72,12 +72,12 @@ export const services = [
   },
   {
     id: 'commercial',
-    title: 'Commercial Photography & Events',
-    icon: Building2,
-    image: '/gallery/services/commercial/01.jpg',
+    title: 'Clothing Photography',
+    icon: Shirt,
+    image: '/gallery/services/commercial/02.jpg',
     objectPosition: 'object-center',
     blurb:
-      'Product, brand and campaign photography built to sell. Clean, considered, and made to look right on every screen.',
+      'Lookbooks, garments and campaign frames built to sell the clothes. Studio or location, made to look right on every screen.',
     tags: [],
   },
   {

@@ -149,7 +149,7 @@ function PkgCard({ selected, onClick, name, price, sub, items }) {
 function totalSteps(type) {
   if (!type)                      return 1
   if (type === 'Wedding Photography')  return 5
-  if (type === 'Commercial Photography & Events') return 3
+  if (type === 'Clothing Photography') return 3
   return 4
 }
 
@@ -171,7 +171,7 @@ const STEP_TITLES = {
 function stepTitle(type, step) {
   if (step === 1) return STEP_TITLES[1]
   if (type === 'Wedding Photography')     return STEP_TITLES.wedding[step] ?? ''
-  if (type === 'Commercial Photography & Events')  return STEP_TITLES.commercial[step] ?? ''
+  if (type === 'Clothing Photography')  return STEP_TITLES.commercial[step] ?? ''
   if (type === 'Bridal Portraits' || type === 'Model Photography') return STEP_TITLES.bridal[step] ?? ''
   if (type === 'Birthday Photography')    return STEP_TITLES.birthday[step] ?? ''
   if (type === 'Graduation Portraits') return STEP_TITLES.grad[step] ?? ''
@@ -232,7 +232,7 @@ export default function QuotePage() {
       if (step === 4) return !!data.location && !!data.date
       if (step === 5) return !!data.name && !!data.email
     }
-    if (t === 'Commercial Photography & Events') {
+    if (t === 'Clothing Photography') {
       if (step === 2) return !!data.commercialBrief.trim()
       return true
     }
@@ -272,7 +272,7 @@ export default function QuotePage() {
 
   const isContact = (
     (step === 5 && data.shootType === 'Wedding Photography') ||
-    (step === 4 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Commercial Photography & Events')
+    (step === 4 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Clothing Photography')
   )
 
   return (
@@ -685,7 +685,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Commercial — Step 2: Project brief ════════════════════════ */}
-              {step === 2 && data.shootType === 'Commercial Photography & Events' && (
+              {step === 2 && data.shootType === 'Clothing Photography' && (
                 <div className="max-w-2xl space-y-6">
                   <div>
                     <label className="mb-2 block font-serif text-xl text-cloud">
@@ -696,7 +696,7 @@ export default function QuotePage() {
                       type="text"
                       value={data.commercialBrand}
                       onChange={(e) => set('commercialBrand', e.target.value)}
-                      placeholder="e.g. Serenity Tea, Colombo Apparel Ltd"
+                      placeholder="e.g. Kayal, Navasthra"
                       className="w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cloud
                                  placeholder:text-cloud/35 focus:border-champagne focus:outline-none focus:ring-1 focus:ring-champagne"
                     />
@@ -706,13 +706,13 @@ export default function QuotePage() {
                       Tell us about the shoot <span className="text-champagne">*</span>
                     </label>
                     <p className="mb-3 text-sm text-cloud/45">
-                      Product type, campaign goal, the look you're going for — whatever helps us picture it.
+                      Collection, look, campaign goal — whatever helps us picture the clothes.
                     </p>
                     <textarea
                       rows={5}
                       value={data.commercialBrief}
                       onChange={(e) => set('commercialBrief', e.target.value)}
-                      placeholder="e.g. We're launching a new skincare range and need product + lifestyle shots for Instagram and packaging. Minimal, clean, pastel tones."
+                      placeholder="e.g. We're dropping a new collection and need a lookbook plus a few lifestyle shots for Instagram. Clean studio light, earth tones."
                       className="w-full resize-none rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3
                                  text-cloud placeholder:text-cloud/35 focus:border-champagne
                                  focus:outline-none focus:ring-1 focus:ring-champagne"
@@ -722,12 +722,12 @@ export default function QuotePage() {
               )}
 
               {/* ══ Commercial — Step 3: Contact details ══════════════════════ */}
-              {step === 3 && data.shootType === 'Commercial Photography & Events' && (
+              {step === 3 && data.shootType === 'Clothing Photography' && (
                 <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                   {/* Contact info */}
                   <div>
                     <p className="leading-relaxed text-cloud/60">
-                      Every commercial project is different. We review each brief personally and come back with a tailored quote — usually within 24 hours.
+                      Every clothing shoot is different. We review each brief personally and come back with a tailored quote — usually within 24 hours.
                     </p>
                     <div className="mt-8 space-y-3">
                       {[
@@ -766,7 +766,7 @@ export default function QuotePage() {
                     <div className="mt-5 grid gap-3">
                       <a
                         href={whatsappLink(
-                          `Hi BlinkSky! I'd like a quote for a commercial shoot.${data.commercialBrand ? `\n\nBrand: ${data.commercialBrand}` : ''}${data.commercialBrief ? `\n\nProject brief:\n${data.commercialBrief}` : ''}`
+                          `Hi BlinkSky! I'd like a quote for a clothing shoot.${data.commercialBrand ? `\n\nBrand: ${data.commercialBrand}` : ''}${data.commercialBrief ? `\n\nProject brief:\n${data.commercialBrief}` : ''}`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -778,8 +778,8 @@ export default function QuotePage() {
                       <button
                         type="button"
                         onClick={() => {
-                          const sub  = encodeURIComponent('Commercial shoot enquiry — BlinkSky Productions')
-                          const body = encodeURIComponent(`Hi BlinkSky,\n\nI'd like to enquire about a commercial shoot.\n\n${buildSummary()}\n`)
+                          const sub  = encodeURIComponent('Clothing shoot enquiry — BlinkSky Productions')
+                          const body = encodeURIComponent(`Hi BlinkSky,\n\nI'd like to enquire about a clothing shoot.\n\n${buildSummary()}\n`)
                           window.location.href = `mailto:${studio.email}?subject=${sub}&body=${body}`
                         }}
                         className="btn-ghost w-full"
@@ -792,7 +792,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Shared Step 3 (non-wedding): Date + location ═════════════ */}
-              {step === 3 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Commercial Photography & Events' && (
+              {step === 3 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Clothing Photography' && (
                 <div className="grid max-w-xl gap-6 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block font-serif text-xl text-cloud">

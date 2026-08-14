@@ -1,13 +1,13 @@
 ﻿import { useEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import { Instagram, Camera, Phone } from 'lucide-react'
 import Reveal from './Reveal'
 import { studio } from '../data/socials'
 
 const stats = [
-  { value: '2+', label: 'Years Behind the Lens' },
-  { value: '500+', label: 'Shoots Delivered' },
-  { value: '120+', label: 'Weddings Filmed' },
-  { value: '100%', label: 'Moments, Never Staged' },
+  { to: 2, suffix: '+', label: 'Years Behind the Lens' },
+  { to: 120, suffix: '+', label: 'Weddings Filmed' },
+  { to: 100, suffix: '%', label: 'True to the Moment' },
 ]
 
 const founder = {
@@ -36,7 +36,7 @@ const brands = [
     icon: Camera,
     logo: '/logo-portrait.png',
     logoBg: 'bg-transparent',
-    description: 'Photography studio capturing weddings, portraits and commercial work across Sri Lanka.',
+    description: 'Photography studio capturing weddings, portraits and clothing work across Sri Lanka.',
   },
   {
     name: 'BlinkSky Media',
@@ -99,6 +99,52 @@ function WhatsAppIcon({ size = 18 }) {
   )
 }
 
+function CountStat({ to, suffix, duration = 1200 }) {
+  const reduce = useReducedMotion()
+  const ref = useRef(null)
+  const [n, setN] = useState(reduce ? to : 0)
+
+  useEffect(() => {
+    if (reduce) {
+      setN(to)
+      return
+    }
+    const el = ref.current
+    if (!el) return
+    let raf = 0
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        cancelAnimationFrame(raf)
+        if (!entry.isIntersecting) {
+          setN(0)
+          return
+        }
+        const t0 = performance.now()
+        const tick = (now) => {
+          const t = Math.min(1, (now - t0) / duration)
+          const eased = 1 - (1 - t) ** 3
+          setN(Math.round(eased * to))
+          if (t < 1) raf = requestAnimationFrame(tick)
+        }
+        raf = requestAnimationFrame(tick)
+      },
+      { threshold: 0.4 },
+    )
+    io.observe(el)
+    return () => {
+      io.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [to, duration, reduce])
+
+  return (
+    <span ref={ref}>
+      {n}
+      {suffix}
+    </span>
+  )
+}
+
 function scrollCardIntoView(scroller, index, behavior = 'smooth') {
   const card = scroller.querySelectorAll('[data-brand-card]')[index]
   if (!card) return
@@ -143,6 +189,7 @@ function nearestCardIndex(scroller) {
 }
 
 export default function About() {
+  const reduceMotion = useReducedMotion()
   const [active, setActive] = useState(0)
   const scrollerRef = useRef(null)
   const indexRef = useRef(LOOP_START)
@@ -246,15 +293,27 @@ export default function About() {
 
         {/* Studio overview */}
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-          <Reveal className="relative order-2 lg:order-1">
-            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-transparent flex items-center justify-center">
-              <img
-                src="/logo-portrait.png"
-                alt="BlinkSky Productions"
-                className="w-full max-w-L"
+          <div className="relative order-2 flex flex-col items-center justify-center lg:order-1">
+            <motion.img
+              src="/logo-portrait.png"
+              alt="BlinkSky Productions"
+              className="w-full max-w-sm"
+              initial={reduceMotion ? false : { opacity: 0, scale: 0.92, filter: 'blur(6px)' }}
+              whileInView={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+              viewport={{ once: false, amount: 0.4 }}
+              transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            />
+            {!reduceMotion && (
+              <motion.span
+                aria-hidden
+                className="mt-2 h-px bg-gradient-to-r from-transparent via-champagne to-transparent"
+                initial={{ width: 0, opacity: 0 }}
+                whileInView={{ width: '18rem', opacity: 1 }}
+                viewport={{ once: false, amount: 0.4 }}
+                transition={{ delay: 0.35, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               />
-            </div>
-          </Reveal>
+            )}
+          </div>
 
           <div className="order-1 lg:order-2">
             <Reveal>
@@ -270,15 +329,17 @@ export default function About() {
             </Reveal>
             <Reveal delay={0.15}>
               <p className="mt-4 leading-relaxed text-cloud/65">
-                Whether it's a bridal shoot or a full commercial production, the approach stays the same. We pay attention to the details that would otherwise get missed, and we show up the same way regardless of the size of the job.
+                Whether it's a bridal shoot or a clothing campaign, the approach stays the same. We pay attention to the details that would otherwise get missed, and we show up the same way regardless of the size of the job.
               </p>
             </Reveal>
 
-            <div className="mt-10 grid grid-cols-2 gap-6 sm:grid-cols-4">
+            <div className="mt-10 grid grid-cols-3 gap-6">
               {stats.map((s, i) => (
                 <Reveal key={s.label} delay={0.1 + i * 0.06}>
                   <div>
-                    <p className="font-serif text-4xl text-champagne">{s.value}</p>
+                    <p className="font-serif text-4xl text-champagne">
+                      <CountStat to={s.to} suffix={s.suffix} />
+                    </p>
                     <p className="mt-1 text-xs leading-snug text-cloud/55">{s.label}</p>
                   </div>
                 </Reveal>
