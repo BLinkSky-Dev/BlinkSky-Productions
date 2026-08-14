@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Mail, MapPin, MessageCircle, Phone, Send, X } from 'lucide-react'
-import { casualPackages, services } from '../data/services'
 import { mapsLink, studio, whatsappLink } from '../data/socials'
+import { useServices } from '../hooks/useServices'
 
 // ─── Static data ─────────────────────────────────────────────────────────────
 
@@ -20,36 +20,6 @@ const VIDEO_TYPES   = [
   'Free Shoot', 'Save the Date Video', 'Reception Video',
 ]
 const ENL_SIZES = ['10×15', '12×18', '16×24', '20×30']
-
-const BRIDAL_PKGS = [
-  { photos: 10, price: 10000 },
-  { photos: 15, price: 13500 },
-  { photos: 20, price: 18000 },
-]
-
-const BIRTHDAY_PKGS = [
-  { id: 'cas',   name: 'Casual Shoot',         price: 15000, sub: null,                        items: ['15 edited photos', '1 video'] },
-  { id: 'p1',    name: 'Package 1',             price: 35000, sub: 'Shoot + function coverage', items: ['Soft copies only'] },
-  { id: 'p2a',   name: 'Package 2 · 8×24',     price: 40000, sub: 'Shoot + function coverage', items: ['Album 8×24 · 30 pages'] },
-  { id: 'p2b',   name: 'Package 2 · 10×24',    price: 50000, sub: 'Shoot + function coverage', items: ['Album 10×24 · 30 pages'] },
-  { id: 'p2c',   name: 'Package 2 · 12×24',    price: 75000, sub: 'Shoot + function coverage', items: ['Album 12×24 · 40 pages'] },
-  { id: 'vid',   name: 'Videography',           price: 35000, sub: 'Shoot + function coverage', items: ['Highlight video'] },
-  { id: 'fr1',   name: 'Frame Package 1',       price: 18000, sub: 'Casual shoot',              items: ['15 edited photos', '1 video', '1× 10×15 frame'] },
-  { id: 'fr2',   name: 'Frame Package 2',       price: 25000, sub: 'Casual shoot',              items: ['25 edited photos', '1 video', '1× 10×15 frame'] },
-  { id: 'fr3',   name: 'Frame Package 3',       price: 35000, sub: 'Casual shoot',              items: ['35 edited photos', '1 video', '1× 10×15 frame'] },
-]
-
-const GRAD_PRICES = [7000, 10000, 12000, 15000]
-
-const STEP1_SPAN = {
-  wedding:    'lg:col-span-2 lg:row-span-2',
-  bridal:     'lg:row-span-2',
-  model:      'lg:row-span-2',
-  commercial: 'lg:col-span-2 lg:row-span-2',
-  birthday:   'lg:row-span-2',
-  graduation: 'lg:row-span-2',
-  casual:     'lg:col-span-2 lg:row-span-2',
-}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -146,42 +116,38 @@ function PkgCard({ selected, onClick, name, price, sub, items }) {
 
 // ─── Step config ─────────────────────────────────────────────────────────────
 
-function totalSteps(type) {
-  if (!type)                      return 1
-  if (type === 'Wedding Photography')  return 5
-  if (type === 'Commercial Photography & Events') return 3
+function flowOf(service) {
+  return service?.quoteFlow || 'packages'
+}
+
+function totalSteps(service) {
+  if (!service) return 1
+  if (flowOf(service) === 'wedding') return 5
+  if (flowOf(service) === 'brief') return 3
   return 4
 }
 
-const STEP_TITLES = {
-  1: 'What are we shooting?',
-  wedding: {
-    2: 'Tell us about the wedding',
-    3: 'Coverage & options',
-    4: 'Details & budget',
-    5: 'Your details',
-  },
-  bridal:  { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
-  birthday:{ 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
-  grad:    { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
-  casual:  { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' },
-  commercial: { 2: 'About your project', 3: 'Get in touch' },
-}
-
-function stepTitle(type, step) {
-  if (step === 1) return STEP_TITLES[1]
-  if (type === 'Wedding Photography')     return STEP_TITLES.wedding[step] ?? ''
-  if (type === 'Commercial Photography & Events')  return STEP_TITLES.commercial[step] ?? ''
-  if (type === 'Bridal Portraits' || type === 'Model Photography') return STEP_TITLES.bridal[step] ?? ''
-  if (type === 'Birthday Photography')    return STEP_TITLES.birthday[step] ?? ''
-  if (type === 'Graduation Portraits') return STEP_TITLES.grad[step] ?? ''
-  if (type === 'Casual Shoots')        return STEP_TITLES.casual[step] ?? ''
-  return ''
+function stepTitle(service, step) {
+  if (step === 1) return 'What are we shooting?'
+  const flow = flowOf(service)
+  if (flow === 'wedding') {
+    return {
+      2: 'Tell us about the wedding',
+      3: 'Coverage & options',
+      4: 'Details & budget',
+      5: 'Your details',
+    }[step] ?? ''
+  }
+  if (flow === 'brief') {
+    return { 2: 'About your project', 3: 'Get in touch' }[step] ?? ''
+  }
+  return { 2: 'Choose your package', 3: 'Date & location', 4: 'Your details' }[step] ?? ''
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function QuotePage() {
+  const { services } = useServices()
   const [step, setStep]   = useState(1)
   const [data, setData]   = useState({
     shootType: '',
@@ -221,18 +187,19 @@ export default function QuotePage() {
   })
 
   const goHome  = () => { window.location.hash = '' }
-  const TOTAL   = totalSteps(data.shootType)
+  const selected = services.find((s) => s.title === data.shootType)
+  const flow = flowOf(selected)
+  const TOTAL   = totalSteps(selected)
 
   const canContinue = useMemo(() => {
     if (step === 1) return !!data.shootType
-    const t = data.shootType
-    if (t === 'Wedding Photography') {
+    if (flow === 'wedding') {
       if (step === 2) return !!data.weddingCulture && data.weddingEvents.length > 0
       if (step === 3) return data.hasPhoto || data.hasVideo
       if (step === 4) return !!data.location && !!data.date
       if (step === 5) return !!data.name && !!data.email
     }
-    if (t === 'Commercial Photography & Events') {
+    if (flow === 'brief') {
       if (step === 2) return !!data.commercialBrief.trim()
       return true
     }
@@ -240,7 +207,7 @@ export default function QuotePage() {
     if (step === 3) return !!data.date
     if (step === 4) return !!data.name && !!data.email
     return true
-  }, [step, data])
+  }, [step, data, flow])
 
   const buildSummary = () => {
     const L = [`Shoot: ${data.shootType}`]
@@ -256,7 +223,7 @@ export default function QuotePage() {
     if (data.package)   L.push(`Package: ${data.package}`)
     if (data.location)  L.push(`Location: ${data.location}`)
     if (data.date)      L.push(`Date: ${data.date}`)
-    if (data.budget && data.shootType === 'Wedding Photography') L.push(`Budget: ${lkr(data.budget)}`)
+    if (data.budget && flow === 'wedding') L.push(`Budget: ${lkr(data.budget)}`)
     if (data.name)  L.push(`\nName: ${data.name}`)
     if (data.email) L.push(`Email: ${data.email}`)
     if (data.phone) L.push(`Phone: ${data.phone}`)
@@ -271,8 +238,8 @@ export default function QuotePage() {
   }
 
   const isContact = (
-    (step === 5 && data.shootType === 'Wedding Photography') ||
-    (step === 4 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Commercial Photography & Events')
+    (step === 5 && flow === 'wedding') ||
+    (step === 4 && flow === 'packages')
   )
 
   return (
@@ -320,7 +287,7 @@ export default function QuotePage() {
           tabIndex={-1}
           className="font-serif text-3xl leading-tight text-cloud outline-none sm:text-4xl md:text-5xl"
         >
-          {stepTitle(data.shootType, step)}
+          {stepTitle(selected, step)}
         </h1>
         {step === 1 && (
           <p className="mt-2 text-cloud/50">No obligation — this just helps us price it accurately.</p>
@@ -343,7 +310,7 @@ export default function QuotePage() {
                     const Icon = s.icon
                     const on = data.shootType === s.title
                     return (
-                      <div key={s.id} className={STEP1_SPAN[s.id] ?? ''}>
+                      <div key={s.id} className={s.span ?? 'lg:row-span-2'}>
                         <motion.button
                           type="button"
                           onClick={() => set('shootType', s.title)}
@@ -400,7 +367,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Wedding — Step 2: Culture + events ════════════════════════ */}
-              {step === 2 && data.shootType === 'Wedding Photography' && (
+              {step === 2 && flow === 'wedding' && (
                 <div className="grid gap-8 lg:grid-cols-2">
                   <div>
                     <p className="mb-4 font-serif text-xl text-cloud">Wedding type</p>
@@ -440,7 +407,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Wedding — Step 3: Photo + Video coverage ══════════════════ */}
-              {step === 3 && data.shootType === 'Wedding Photography' && (
+              {step === 3 && flow === 'wedding' && (
                 <div className="space-y-5 max-w-3xl">
                   {/* Photography */}
                   <div className={`rounded-2xl border p-6 transition-all duration-300
@@ -521,7 +488,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Wedding — Step 4: Enlargements + location + date + budget ═ */}
-              {step === 4 && data.shootType === 'Wedding Photography' && (
+              {step === 4 && flow === 'wedding' && (
                 <div className="grid gap-8 lg:grid-cols-2">
                   {/* Left */}
                   <div className="space-y-6">
@@ -624,21 +591,28 @@ export default function QuotePage() {
                 </div>
               )}
 
-              {/* ══ Bridal / Model / Casual — Step 2: Packages ═══════════════ */}
-              {step === 2 && (data.shootType === 'Bridal Portraits' || data.shootType === 'Model Photography' || data.shootType === 'Casual Shoots') && (
+              {/* ══ Packages — Step 2 ═══════════════════════════════════════ */}
+              {step === 2 && flow === 'packages' && (
                 <div>
-                  <p className="mb-5 text-cloud/50">30–60 sec reel included with every package.</p>
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    {(data.shootType === 'Casual Shoots' ? casualPackages : BRIDAL_PKGS).map((p) => {
-                      const label = `${p.photos} Photos — ${lkr(p.price)}`
+                  {selected?.packageHint && (
+                    <p className="mb-5 text-cloud/50">{selected.packageHint}</p>
+                  )}
+                  <div className={`grid gap-4 ${
+                    (selected?.packages?.length || 0) > 4
+                      ? 'sm:grid-cols-2 lg:grid-cols-3'
+                      : 'sm:grid-cols-3'
+                  }`}>
+                    {(selected?.packages || []).map((p) => {
+                      const label = `${p.name} — ${lkr(p.price)}`
                       return (
                         <PkgCard
-                          key={p.photos}
+                          key={p.id || p.name}
                           selected={data.package === label}
                           onClick={() => set('package', label)}
-                          name={`${p.photos} Photos`}
+                          name={p.name}
                           price={lkr(p.price)}
-                          items={['30–60 sec reel included']}
+                          sub={p.sub}
+                          items={p.items}
                         />
                       )
                     })}
@@ -646,46 +620,8 @@ export default function QuotePage() {
                 </div>
               )}
 
-              {/* ══ Birthday — Step 2: Packages ═══════════════════════════════ */}
-              {step === 2 && data.shootType === 'Birthday Photography' && (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {BIRTHDAY_PKGS.map((p) => {
-                    const label = `${p.name} — ${lkr(p.price)}`
-                    return (
-                      <PkgCard
-                        key={p.id}
-                        selected={data.package === label}
-                        onClick={() => set('package', label)}
-                        name={p.name}
-                        price={lkr(p.price)}
-                        sub={p.sub}
-                        items={p.items}
-                      />
-                    )
-                  })}
-                </div>
-              )}
-
-              {/* ══ Graduation — Step 2: Packages ════════════════════════════ */}
-              {step === 2 && data.shootType === 'Graduation Portraits' && (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                  {GRAD_PRICES.map((price) => {
-                    const label = lkr(price)
-                    return (
-                      <PkgCard
-                        key={price}
-                        selected={data.package === label}
-                        onClick={() => set('package', label)}
-                        name={label}
-                        price={label}
-                      />
-                    )
-                  })}
-                </div>
-              )}
-
               {/* ══ Commercial — Step 2: Project brief ════════════════════════ */}
-              {step === 2 && data.shootType === 'Commercial Photography & Events' && (
+              {step === 2 && flow === 'brief' && (
                 <div className="max-w-2xl space-y-6">
                   <div>
                     <label className="mb-2 block font-serif text-xl text-cloud">
@@ -696,7 +632,7 @@ export default function QuotePage() {
                       type="text"
                       value={data.commercialBrand}
                       onChange={(e) => set('commercialBrand', e.target.value)}
-                      placeholder="e.g. Serenity Tea, Colombo Apparel Ltd"
+                      placeholder="e.g. Kayal, Navasthra"
                       className="w-full rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3 text-cloud
                                  placeholder:text-cloud/35 focus:border-champagne focus:outline-none focus:ring-1 focus:ring-champagne"
                     />
@@ -706,13 +642,13 @@ export default function QuotePage() {
                       Tell us about the shoot <span className="text-champagne">*</span>
                     </label>
                     <p className="mb-3 text-sm text-cloud/45">
-                      Product type, campaign goal, the look you're going for — whatever helps us picture it.
+                      Collection, look, campaign goal — whatever helps us picture the clothes.
                     </p>
                     <textarea
                       rows={5}
                       value={data.commercialBrief}
                       onChange={(e) => set('commercialBrief', e.target.value)}
-                      placeholder="e.g. We're launching a new skincare range and need product + lifestyle shots for Instagram and packaging. Minimal, clean, pastel tones."
+                      placeholder="e.g. We're dropping a new collection and need a lookbook plus a few lifestyle shots for Instagram. Clean studio light, earth tones."
                       className="w-full resize-none rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3
                                  text-cloud placeholder:text-cloud/35 focus:border-champagne
                                  focus:outline-none focus:ring-1 focus:ring-champagne"
@@ -722,12 +658,12 @@ export default function QuotePage() {
               )}
 
               {/* ══ Commercial — Step 3: Contact details ══════════════════════ */}
-              {step === 3 && data.shootType === 'Commercial Photography & Events' && (
+              {step === 3 && flow === 'brief' && (
                 <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
                   {/* Contact info */}
                   <div>
                     <p className="leading-relaxed text-cloud/60">
-                      Every commercial project is different. We review each brief personally and come back with a tailored quote — usually within 24 hours.
+                      Every clothing shoot is different. We review each brief personally and come back with a tailored quote — usually within 24 hours.
                     </p>
                     <div className="mt-8 space-y-3">
                       {[
@@ -766,7 +702,7 @@ export default function QuotePage() {
                     <div className="mt-5 grid gap-3">
                       <a
                         href={whatsappLink(
-                          `Hi BlinkSky! I'd like a quote for a commercial shoot.${data.commercialBrand ? `\n\nBrand: ${data.commercialBrand}` : ''}${data.commercialBrief ? `\n\nProject brief:\n${data.commercialBrief}` : ''}`
+                          `Hi BlinkSky! I'd like a quote for a clothing shoot.${data.commercialBrand ? `\n\nBrand: ${data.commercialBrand}` : ''}${data.commercialBrief ? `\n\nProject brief:\n${data.commercialBrief}` : ''}`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -778,8 +714,8 @@ export default function QuotePage() {
                       <button
                         type="button"
                         onClick={() => {
-                          const sub  = encodeURIComponent('Commercial shoot enquiry — BlinkSky Productions')
-                          const body = encodeURIComponent(`Hi BlinkSky,\n\nI'd like to enquire about a commercial shoot.\n\n${buildSummary()}\n`)
+                          const sub  = encodeURIComponent('Clothing shoot enquiry — BlinkSky Productions')
+                          const body = encodeURIComponent(`Hi BlinkSky,\n\nI'd like to enquire about a clothing shoot.\n\n${buildSummary()}\n`)
                           window.location.href = `mailto:${studio.email}?subject=${sub}&body=${body}`
                         }}
                         className="btn-ghost w-full"
@@ -792,7 +728,7 @@ export default function QuotePage() {
               )}
 
               {/* ══ Shared Step 3 (non-wedding): Date + location ═════════════ */}
-              {step === 3 && data.shootType !== 'Wedding Photography' && data.shootType !== 'Commercial Photography & Events' && (
+              {step === 3 && flow !== 'wedding' && flow !== 'brief' && (
                 <div className="grid max-w-xl gap-6 sm:grid-cols-2">
                   <div>
                     <label className="mb-2 block font-serif text-xl text-cloud">
@@ -876,7 +812,7 @@ export default function QuotePage() {
                         data.package        ? ['Package',     data.package] : null,
                         data.location       ? ['Location',    data.location] : null,
                         data.date           ? ['Date',        data.date] : null,
-                        data.budget && data.shootType === 'Wedding Photography' ? ['Budget', lkr(data.budget)] : null,
+                        data.budget && flow === 'wedding' ? ['Budget', lkr(data.budget)] : null,
                       ].filter(Boolean).map(([k, v]) => (
                         <div key={k} className="flex gap-3">
                           <dt className="w-28 flex-shrink-0 text-cloud/40">{k}</dt>

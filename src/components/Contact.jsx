@@ -1,9 +1,9 @@
-﻿import { useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, MapPin, Instagram, Facebook, Youtube, Phone, Check, Pencil } from 'lucide-react'
 import TikTok from './icons/TikTok'
 import Reveal from './Reveal'
-import { services } from '../data/services'
+import { useServices } from '../hooks/useServices'
 import { studio as STUDIO, whatsappLink, mapsLink } from '../data/socials'
 
 /** WhatsApp glyph (lucide has no brand icons). */
@@ -16,14 +16,20 @@ function WhatsAppIcon({ size = 18 }) {
 }
 
 export default function Contact() {
+  const { services } = useServices()
   const [form, setForm] = useState({
     name: '',
     email: '',
-    service: services[0].title,
+    service: '',
     message: '',
   })
   const [ready, setReady] = useState(false) // show channel picker after submit
   const [igCopied, setIgCopied] = useState(false)
+
+  useEffect(() => {
+    if (!services.length) return
+    setForm((f) => (f.service ? f : { ...f, service: services[0].title }))
+  }, [services])
 
   const update = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }))
 

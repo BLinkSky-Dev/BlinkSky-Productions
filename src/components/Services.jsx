@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronDown } from 'lucide-react'
-import { services, serviceGalleryBase } from '../data/services'
+import { ArrowRight, ChevronDown } from 'lucide-react'
+import { serviceGalleryBase } from '../data/services'
+import { useServices } from '../hooks/useServices'
 import SectionHeading from './SectionHeading'
 import SmartImage from './SmartImage'
 import Lightbox from './Lightbox'
@@ -35,11 +36,16 @@ async function loadServiceGallery(service) {
  * from public/gallery/services/<id>/.
  */
 export default function Services() {
-  const [expandedId, setExpandedId] = useState(services[0]?.id ?? null)
+  const { services } = useServices()
+  const [expandedId, setExpandedId] = useState(null)
   const [galleries, setGalleries] = useState(() =>
     Object.fromEntries(services.map((s) => [s.id, s.image ? [s.image] : []])),
   )
   const [lightbox, setLightbox] = useState({ items: [], index: null })
+
+  useEffect(() => {
+    setExpandedId((id) => id ?? services[0]?.id ?? null)
+  }, [services])
 
   useEffect(() => {
     let alive = true
@@ -52,7 +58,7 @@ export default function Services() {
     return () => {
       alive = false
     }
-  }, [])
+  }, [services])
 
   const openLightbox = (gallery, title, startIndex) => {
     setLightbox({
@@ -202,7 +208,7 @@ export default function Services() {
                               aria-label={`View ${s.title} photo ${gi + 1}`}
                             >
                               <SmartImage
-                                src={src} 
+                                src={src}
                                 alt={`${s.title} — frame ${gi + 1}`}
                                 className="transition-transform duration-700 ease-smooth group-hover/shot:scale-105"
                               />
@@ -212,6 +218,21 @@ export default function Services() {
                           </li>
                         ))}
                       </ul>
+
+                      {gallery.length > 0 && (
+                        <div className="mt-5 flex justify-center sm:mt-6">
+                          <button
+                            type="button"
+                            tabIndex={isOpen ? 0 : -1}
+                            onClick={() => openLightbox(gallery, s.title, 0)}
+                            className="btn-ghost"
+                            aria-label={`See more ${s.title} photos`}
+                          >
+                            See more
+                            <ArrowRight size={16} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
