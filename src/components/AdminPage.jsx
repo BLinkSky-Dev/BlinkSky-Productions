@@ -195,7 +195,7 @@ export default function AdminPage() {
         <header className="border-b border-ink-700">
           <div className="container-x flex items-center justify-between py-4">
             <img src="/logo-landscape.png" alt="BlinkSky" className="h-9 w-auto" />
-            <a href="#" className="btn-ghost">Back to site</a>
+            <a href="/" className="btn-ghost">Back to site</a>
           </div>
         </header>
         <main className="container-x flex max-w-md flex-col py-16">
@@ -247,7 +247,7 @@ export default function AdminPage() {
           </div>
           <div className="flex items-center gap-3">
             <button type="button" onClick={logout} className="btn-ghost">Log out</button>
-            <a href="#" className="btn-ghost">Back to site</a>
+            <a href="/" className="btn-ghost">Back to site</a>
           </div>
         </div>
       </header>

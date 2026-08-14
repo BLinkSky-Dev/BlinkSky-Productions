@@ -1,26 +1,35 @@
 import { useEffect, useState } from 'react'
 
+function pathName() {
+  return (window.location.pathname.replace(/\/+$/, '') || '/')
+}
+
 /**
- * Tiny hash-based router.
- *
- * Hash routing (rather than react-router + BrowserRouter) is deliberate: it
- * needs no extra dependency and, critically, no server rewrite rules, so
- * /#quote and /#admin work on any static host without a 404 on refresh.
- * In-page anchors like #services still fall through to 'home'.
+ * Quote and admin are full pages. Prefer real paths (/quote, /admin) so they
+ * work on Vercel after a refresh; keep /#quote and /#admin as aliases.
+ * In-page anchors like #services still fall through to the home page.
  */
+function read() {
+  const path = pathName()
+  if (path === '/quote' || path === '/quote.html') return 'quote'
+  if (path === '/admin' || path === '/admin.html') return 'admin'
+  const hash = window.location.hash
+  if (hash === '#quote') return 'quote'
+  if (hash === '#admin') return 'admin'
+  return 'home'
+}
+
 export function useHashRoute() {
-  const read = () => {
-    const hash = window.location.hash
-    if (hash === '#quote') return 'quote'
-    if (hash === '#admin') return 'admin'
-    return 'home'
-  }
   const [route, setRoute] = useState(read)
 
   useEffect(() => {
     const onChange = () => setRoute(read())
     window.addEventListener('hashchange', onChange)
-    return () => window.removeEventListener('hashchange', onChange)
+    window.addEventListener('popstate', onChange)
+    return () => {
+      window.removeEventListener('hashchange', onChange)
+      window.removeEventListener('popstate', onChange)
+    }
   }, [])
 
   return route
