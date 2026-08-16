@@ -48,15 +48,15 @@ export function googleProfileUrl() {
 export const fallbackReviews = [
   {
     id: 'g1',
-    author: 'Ahamed Hamdhan.',
+    author: 'Abi Shalini.',
     rating: 5,
-    text: 'Perfect wedding photos and videos. Highly recommended.',
+    text: 'Excellent photography and very professional service. The quality, creativity, and attention to detail were outstanding. Truly happy with the results! Highly recommended. Best of luck santhosh ❤️',
   },
   {
     id: 'g2',
-    author: 'Praveen dev',
+    author: 'Aishwarya Emma',
     rating: 5,
-    text: 'Had a recent photoshoot and turned out very nice. Appreciate the photographer\'s skill and timeliness.',
+    text: 'I’ve done several shoots with Blink Production, and honestly, they’ve been amazing every single time! ❤️ The team is super friendly, professional, and easy to work with. The photos and videos always turn out so good, and they really know how to capture the best moments. Definitely one of my favourite teams to work with, and I’m looking forward to many more shoots together! ✨',
   },
   {
     id: 'g3',
@@ -65,17 +65,10 @@ export const fallbackReviews = [
     text: 'Good Quality output of our portraits... Highly recommended.',
   },
   {
-    id: 'g4',
-    author: 'Dewmini Ruston',
-    rating: 5,
-    text: 'Good quality work',
-   
-  },
-  {
     id: 'g5',
-    author: 'master fragrance',
+    author: 'Mohan Rajasegaran',
     rating: 5,
-    text: 'From engagement to the wedding day, BlinkSky captured every quiet moment and every celebration. Family keeps asking who shot our photos.',
+    text: 'Excellent photography ❤️',
     
   },
   {
