@@ -234,8 +234,8 @@ export default function Reviews() {
         <div className="flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeading
             eyebrow="Google Reviews"
-            title="Words from people we've framed."
-            intro="Real client feedback from Google. Honest notes from weddings, portraits and everything in between."
+            title="What clients say on Google."
+            intro="Reviews from weddings, portraits and other shoots."
           />
 
           <Reveal delay={0.08}>

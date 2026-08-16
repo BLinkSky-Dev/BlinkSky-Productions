@@ -706,13 +706,13 @@ export default function QuotePage() {
                       Tell us about the shoot <span className="text-champagne">*</span>
                     </label>
                     <p className="mb-3 text-sm text-cloud/45">
-                      Collection, look, campaign goal — whatever helps us picture the clothes.
+                      Collection, brand campaign or product — whatever helps us picture the shoot.
                     </p>
                     <textarea
                       rows={5}
                       value={data.commercialBrief}
                       onChange={(e) => set('commercialBrief', e.target.value)}
-                      placeholder="e.g. We're dropping a new collection and need a lookbook plus a few lifestyle shots for Instagram. Clean studio light, earth tones."
+                      placeholder="e.g. We're dropping a new collection and need a lookbook, brand frames and a few product shots for Instagram. Clean studio light, earth tones."
                       className="w-full resize-none rounded-xl border border-ink-600 bg-ink-900/60 px-4 py-3
                                  text-cloud placeholder:text-cloud/35 focus:border-champagne
                                  focus:outline-none focus:ring-1 focus:ring-champagne"
@@ -727,7 +727,7 @@ export default function QuotePage() {
                   {/* Contact info */}
                   <div>
                     <p className="leading-relaxed text-cloud/60">
-                      Every clothing shoot is different. We review each brief personally and come back with a tailored quote — usually within 24 hours.
+                      Every clothing, branding and commercial product shoot is different. We review each brief personally and come back with a tailored quote — usually within 24 hours.
                     </p>
                     <div className="mt-8 space-y-3">
                       {[
@@ -766,7 +766,7 @@ export default function QuotePage() {
                     <div className="mt-5 grid gap-3">
                       <a
                         href={whatsappLink(
-                          `Hi BlinkSky! I'd like a quote for a clothing shoot.${data.commercialBrand ? `\n\nBrand: ${data.commercialBrand}` : ''}${data.commercialBrief ? `\n\nProject brief:\n${data.commercialBrief}` : ''}`
+                          `Hi BlinkSky! I'd like a quote for a clothing / branding / commercial product shoot.${data.commercialBrand ? `\n\nBrand: ${data.commercialBrand}` : ''}${data.commercialBrief ? `\n\nProject brief:\n${data.commercialBrief}` : ''}`
                         )}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -778,8 +778,8 @@ export default function QuotePage() {
                       <button
                         type="button"
                         onClick={() => {
-                          const sub  = encodeURIComponent('Clothing shoot enquiry — BlinkSky Productions')
-                          const body = encodeURIComponent(`Hi BlinkSky,\n\nI'd like to enquire about a clothing shoot.\n\n${buildSummary()}\n`)
+                          const sub  = encodeURIComponent('Clothing / branding / commercial product enquiry — BlinkSky Media')
+                          const body = encodeURIComponent(`Hi BlinkSky,\n\nI'd like to enquire about a clothing, branding or commercial product shoot.\n\n${buildSummary()}\n`)
                           window.location.href = `mailto:${studio.email}?subject=${sub}&body=${body}`
                         }}
                         className="btn-ghost w-full"

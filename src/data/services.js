@@ -31,7 +31,7 @@ export const services = [
     icon: Heart,
     image: '/gallery/services/wedding/01.jpg',
     blurb:
-      'Full-day coverage of the vows, the tears, the dance floor. Photos and film built to last the distance.',
+      'Full-day photo and film for the ceremony, reception and everything in between.',
     tags: [],
   },
   {
@@ -40,7 +40,7 @@ export const services = [
     icon: Gem,
     image: '/gallery/services/bridal/01.jpg',
     blurb:
-      'The dress, the details, that quiet moment before it all begins. Portraits with an editorial edge that hold up years later.',
+      'Quiet portraits of the dress, jewellery and the hour before the ceremony.',
     tags: [],
   },
   {
@@ -49,7 +49,7 @@ export const services = [
     icon: Camera,
     image: '/gallery/services/model/01.jpg',
     blurb:
-      'Portfolio and editorial work that makes the camera pay attention. Studio or location, whatever the look needs.',
+      'Portfolio and editorial work for models and brands — studio or on location.',
     tags: [],
   },
   {
@@ -58,7 +58,7 @@ export const services = [
     icon: Sun,
     image: '/gallery/services/casual/01.jpg',
     blurb:
-      'Casual shoots are a great way to capture your everyday moments. We can shoot at your home, office, or any other location you choose. We can also shoot at our studio if you prefer.',
+      'Relaxed portraits at home, at the office or in studio — plus a short reel if you want one.',
     tags: [],
   },
   {
@@ -67,7 +67,7 @@ export const services = [
     icon: Cake,
     image: '/gallery/services/birthday/01.jpg',
     blurb:
-      'Candid, colourful coverage that actually captures the room. The kind you come back to years later.',
+      'Candid coverage of the party — the people, the cake, the room.',
     tags: [],
   },
   {
@@ -77,7 +77,7 @@ export const services = [
     image: '/gallery/services/commercial/02.jpg',
     objectPosition: 'object-center',
     blurb:
-      'Lookbooks, garments and campaign frames built to sell the clothes. Studio or location, made to look right on every screen.',
+      'Lookbooks, garments and campaign shots for clothing brands — studio or location.',
     tags: [],
   },
   {
@@ -86,7 +86,7 @@ export const services = [
     icon: GraduationCap,
     image: '/gallery/services/graduation/01.jpg',
     blurb:
-      'Cap, gown and the whole day around it. Solo portraits and group shots worth printing.',
+      'Cap, gown and the day around it — solo portraits and group shots ready to print.',
     tags: [],
   },
 ]
