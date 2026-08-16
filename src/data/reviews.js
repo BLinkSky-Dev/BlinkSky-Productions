@@ -46,17 +46,18 @@ export function googleProfileUrl() {
  * Replace with copy from your Google Business Profile as new reviews come in.
  */
 export const fallbackReviews = [
-  {
-    id: 'g1',
-    author: 'Abi Shalini.',
-    rating: 5,
-    text: 'Excellent photography and very professional service. The quality, creativity, and attention to detail were outstanding. Truly happy with the results! Highly recommended. Best of luck santhosh ❤️',
-  },
+  
   {
     id: 'g2',
     author: 'Aishwarya Emma',
     rating: 5,
     text: 'I’ve done several shoots with Blink Production, and honestly, they’ve been amazing every single time! ❤️ The team is super friendly, professional, and easy to work with. The photos and videos always turn out so good, and they really know how to capture the best moments. Definitely one of my favourite teams to work with, and I’m looking forward to many more shoots together! ✨',
+  },
+  {
+    id: 'g1',
+    author: 'Praveen Dev.',
+    rating: 5,
+    text: 'Had a recent photoshoot and turned out very nice. Appreciate the photographer’s skill and timeliness.',
   },
   {
     id: 'g3',

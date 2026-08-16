@@ -5,7 +5,7 @@ import Reveal from './Reveal'
 import { studio } from '../data/socials'
 
 const stats = [
-  { to: 2, suffix: '+', label: 'Years Behind the Lens' },
+  { to: 3, suffix: '+', label: 'Years Behind the Lens' },
   { to: 120, suffix: '+', label: 'Weddings Filmed' },
   { to: 100, suffix: '%', label: 'True to the Moment' },
 ]
