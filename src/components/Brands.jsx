@@ -169,7 +169,7 @@ export default function Brands() {
         <SectionHeading
           eyebrow="Trusted By"
           title="Brands we've worked with."
-          intro="A growing list of the studios, salons and brands who've trusted us behind the lens."
+          intro="Clothing, branding and commercial clients who've trusted BlinkSky Media behind the lens."
           align="center"
         />
       </div>

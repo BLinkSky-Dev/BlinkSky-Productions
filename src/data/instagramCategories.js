@@ -37,8 +37,8 @@ export const categoryRules = [
   },
   {
     id: 'commercial',
-    label: 'Clothing',
-    keywords: ['clothing', 'clothes', 'garment', 'apparel', 'lookbook', 'commercial', 'brand', 'product', 'campaign'],
+    label: 'Clothing & Brand',
+    keywords: ['clothing', 'clothes', 'garment', 'apparel', 'lookbook', 'commercial', 'brand', 'branding', 'product', 'campaign'],
   },
   {
     id: 'birthday',

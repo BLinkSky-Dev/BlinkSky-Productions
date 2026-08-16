@@ -71,8 +71,8 @@ export default function Services() {
       <div className="container-x">
         <SectionHeading
           eyebrow="What We Shoot"
-          title="Whatever the occasion, it deserves a proper frame."
-          intro="Every kind of shoot, one level of care. Open a category to see frames from that world."
+          title="Weddings, portraits, birthdays and brand shoots."
+          intro="Open a category to see recent work from that shoot."
           align="center"
         />
 

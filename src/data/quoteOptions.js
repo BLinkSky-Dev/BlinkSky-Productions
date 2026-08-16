@@ -47,7 +47,7 @@ export const quoteGroups = {
     type: 'multi',
     options: [
       'Edited digital photos',
-      'Cinematic highlight film',
+      'Highlight film',
       'Instagram reels / shorts',
       'Printed album',
       'Framed prints',

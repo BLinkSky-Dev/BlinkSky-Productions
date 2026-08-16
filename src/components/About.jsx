@@ -1,6 +1,6 @@
-﻿import { useEffect, useRef, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
-import { Instagram, Camera, Phone } from 'lucide-react'
+﻿import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { Instagram, Camera, ChevronDown, Phone } from 'lucide-react'
 import Reveal from './Reveal'
 import { studio } from '../data/socials'
 
@@ -12,11 +12,15 @@ const stats = [
 
 const founder = {
   name: 'M G Sandosh',
-  title: 'Founder',
+  title: 'Founder ',
   photo: '/Founder.jpeg',
-  bio1: 'Sandosh is a generational photographer. Families find him once, for a wedding, and come back years later for the next one. That through-line is what he works toward: images that get framed and passed down, not uploaded and forgotten.',
-  bio2: 'He got his start at Sisiras Studio before founding BlinkSky Production, which has since grown into BlinkSky Media and BlinkSky Salon. Eight years in, he still shoots every project himself.',
-  tagline: 'Every frame should tell a story.',
+  bio: [
+    'BlinkSky Production was founded by M G Sandosh, a passionate creative professional and generational photographer with a vision to turn moments, ideas, and stories into powerful visual experiences.',
+    'For Sandosh, photography has always been about more than simply capturing a beautiful image. Families find him once for a wedding, and years later, return to him for the next chapter of their story. That lasting connection is what he works toward with every project — creating photographs that are framed, cherished, and passed down through generations, rather than simply uploaded and forgotten.',
+    'His journey began at Sisiras Studio, where he developed his foundation in photography and visual storytelling. He later founded BlinkSky Production, transforming his passion into a creative production house built around authentic storytelling, cinematic visuals, and meaningful experiences.',
+    'Today, Sandosh is the founder of 8+ brands and brings experience across photography, videography, creative direction, graphic design, digital content, and marketing. Even after eight years in the industry, he continues to personally shoot every project, maintaining the creative quality and personal touch that have become central to his work.',
+    'From intimate wedding moments to large-scale commercial productions, his approach remains the same: understand the story, capture the emotion, and create something that lasts.',
+  ],
   specialties: [
     'Weddings & Engagements',
     'Bridal Photography',
@@ -26,6 +30,8 @@ const founder = {
     'Commercial & Brand Shoots',
     'Cinematic Videography',
   ],
+  closing:
+    'At BlinkSky Production, the goal is simple — to create more than visuals; to preserve stories, emotions, and memories that can be felt today and remembered for generations.',
   instagram: 'https://www.instagram.com/mg_sandosh',
   whatsapp: 'https://wa.me/94760047671',
 }
@@ -36,13 +42,13 @@ const brands = [
     icon: Camera,
     logo: '/logo-portrait.png',
     logoBg: 'bg-transparent',
-    description: 'Photography studio capturing weddings, portraits and clothing work across Sri Lanka.',
+    description: 'Photography studio capturing weddings, portraits and events across Sri Lanka.',
   },
   {
     name: 'BlinkSky Media',
     logo: '/logo-media.png',
     logoBg: 'bg-transparent',
-    description: 'Creative media production and digital content for brands that want to be seen.',
+    description: 'Clothing shoots, branding shoots and commercial product photography.',
   },
   {
     name: 'BlinkSky Salon',
@@ -59,7 +65,7 @@ const brands = [
   {
     name: 'B.dev',
     logo: '/logo-bdev.png',
-    logoBg: 'bg-white',
+    logoBg: 'bg-black',
     description:
       'Transforming businesses for the digital age through innovative solutions, custom development, and strategic social media marketing.',
   },
@@ -96,6 +102,203 @@ function WhatsAppIcon({ size = 18 }) {
     <svg viewBox="0 0 24 24" width={size} height={size} fill="currentColor" aria-hidden="true">
       <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.87 9.87 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.8 15.71c-.25.7-1.44 1.33-2 1.42-.51.08-1.16.11-1.87-.12-.43-.14-.98-.32-1.69-.63-2.98-1.29-4.93-4.29-5.08-4.49-.15-.2-1.21-1.61-1.21-3.07 0-1.46.77-2.18 1.04-2.48.27-.3.59-.37.79-.37h.57c.18.01.43-.07.67.51.25.6.84 2.05.92 2.2.07.15.12.32.02.52-.1.2-.15.33-.3.5-.15.17-.32.39-.45.52-.15.14-.3.3-.13.6.18.3.77 1.27 1.65 2.05 1.13 1.01 2.08 1.32 2.38 1.47.29.14.47.12.64-.08.17-.2.74-.86.94-1.16.2-.3.4-.25.67-.15.27.1 1.72.81 2.02.96.3.15.5.22.57.35.08.12.08.71-.17 1.4z" />
     </svg>
+  )
+}
+
+function FounderProfile() {
+  const reduce = useReducedMotion()
+  const photoRef = useRef(null)
+  const copyRef = useRef(null)
+  const canAnimate = useRef(false)
+  const closing = useRef(false)
+  const [expanded, setExpanded] = useState(false)
+  const [limit, setLimit] = useState(0)
+  const [clipped, setClipped] = useState(true)
+
+  useLayoutEffect(() => {
+    const el = photoRef.current
+    if (!el) return
+    const measure = () => setLimit(Math.round(el.getBoundingClientRect().height))
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const el = copyRef.current
+    if (!el || !limit) return
+    setClipped(el.scrollHeight > limit + 1)
+  }, [limit, expanded])
+
+  const ease = [0.22, 1, 0.36, 1]
+  const duration = reduce || !canAnimate.current ? 0 : 0.65
+
+  const open = () => {
+    canAnimate.current = true
+    setExpanded(true)
+  }
+
+  const close = () => {
+    canAnimate.current = true
+    closing.current = true
+    setExpanded(false)
+  }
+
+  return (
+    <div
+      id="founder"
+      className="grid scroll-mt-28 items-start gap-10 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]"
+    >
+      <Reveal>
+        <div
+          ref={photoRef}
+          className="relative mx-auto aspect-[3/4] w-full max-w-[14rem] overflow-hidden rounded-2xl sm:max-w-[16rem] lg:mx-0 lg:max-w-none"
+        >
+          <img
+            src={founder.photo}
+            alt={founder.name}
+            className="h-full w-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950/50 via-transparent to-transparent" />
+        </div>
+      </Reveal>
+
+      <Reveal delay={0.08} className="min-w-0">
+        <motion.div
+          ref={copyRef}
+          initial={false}
+          animate={{ height: expanded || !limit ? 'auto' : limit }}
+          transition={{ height: { duration, ease } }}
+          onAnimationComplete={() => {
+            if (!closing.current) return
+            closing.current = false
+            document.getElementById('founder')?.scrollIntoView({
+              behavior: reduce ? 'auto' : 'smooth',
+              block: 'start',
+            })
+          }}
+          className="relative overflow-hidden text-center lg:text-left"
+        >
+          <div className={!expanded && clipped ? 'pb-14' : ''}>
+            <h3 className="font-serif text-4xl leading-tight text-cloud sm:text-5xl">
+              {founder.name}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-champagne sm:text-[15px]">
+              {founder.title}
+            </p>
+
+            <span className="mx-auto mt-7 block h-px w-10 bg-champagne/50 lg:mx-0" />
+
+            <div className="mt-5 space-y-4">
+              {founder.bio.map((para) => (
+                <p key={para.slice(0, 40)} className="leading-relaxed text-cloud/65">
+                  {para}
+                </p>
+              ))}
+            </div>
+
+            <h4 className="mt-10 font-serif text-2xl text-cloud">
+              Our Creative Expertise
+            </h4>
+            <div className="mt-5 grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-6">
+              {founder.specialties.map((s) => (
+                <div
+                  key={s}
+                  className="flex items-center justify-center gap-2 text-sm text-cloud/55 lg:justify-start"
+                >
+                  <span className="h-1 w-1 flex-shrink-0 rounded-full bg-champagne/60" />
+                  {s}
+                </div>
+              ))}
+            </div>
+
+            <p className="mt-8 leading-relaxed text-cloud/65">{founder.closing}</p>
+
+            <div className="mt-8 flex items-center justify-center gap-3 lg:justify-start">
+              <a
+                href={`tel:${studio.phone.replace(/\s/g, '')}`}
+                aria-label={`Call ${founder.name} at ${studio.phone}`}
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
+                           text-cloud/60 transition-all hover:border-champagne hover:text-champagne"
+              >
+                <Phone size={17} />
+              </a>
+              <a
+                href={founder.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="MG Sandosh on Instagram"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
+                           text-cloud/60 transition-all hover:border-champagne hover:text-champagne"
+              >
+                <Instagram size={17} />
+              </a>
+              <a
+                href={founder.whatsapp}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Message MG Sandosh on WhatsApp"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
+                           text-cloud/60 transition-all hover:border-[#25D366] hover:text-[#25D366]"
+              >
+                <WhatsAppIcon size={17} />
+              </a>
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {!expanded && clipped && (
+              <motion.div
+                key="read-more-fade"
+                initial={{ opacity: 0 }}
+                animate={{
+                  opacity: 1,
+                  transition: { duration: reduce ? 0 : 0.35, delay: reduce ? 0 : 0.2, ease },
+                }}
+                exit={{
+                  opacity: 0,
+                  transition: { duration: reduce ? 0 : 0.25, ease },
+                }}
+                className="absolute inset-x-0 bottom-0 flex items-end bg-gradient-to-t
+                           from-ink-950 via-ink-950/85 to-transparent pt-16"
+              >
+                <button
+                  type="button"
+                  aria-expanded={false}
+                  onClick={open}
+                  className="mx-auto inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium
+                             text-champagne transition-colors hover:text-champagne-light lg:mx-0"
+                >
+                  Read more
+                  <ChevronDown size={16} strokeWidth={1.75} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
+        <AnimatePresence>
+          {expanded && clipped && (
+            <motion.button
+              key="read-less"
+              type="button"
+              aria-expanded={true}
+              onClick={close}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: reduce ? 0 : 0.4, delay: reduce ? 0 : 0.15, ease }}
+              className="mx-auto mt-4 inline-flex min-h-[44px] items-center gap-1.5 text-sm font-medium
+                         text-champagne transition-colors hover:text-champagne-light lg:mx-0"
+            >
+              Read less
+              <ChevronDown size={16} strokeWidth={1.75} className="rotate-180" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </Reveal>
+    </div>
   )
 }
 
@@ -329,7 +532,7 @@ export default function About() {
             </Reveal>
             <Reveal delay={0.15}>
               <p className="mt-4 leading-relaxed text-cloud/65">
-                Whether it's a bridal shoot or a clothing campaign, the approach stays the same. We pay attention to the details that would otherwise get missed, and we show up the same way regardless of the size of the job.
+                Weddings and portraits sit with BlinkSky Productions. Clothing, branding and commercial product work sits with BlinkSky Media. Either way, we pay attention to the details that would otherwise get missed, and we show up the same way regardless of the size of the job.
               </p>
             </Reveal>
 
@@ -348,93 +551,12 @@ export default function About() {
           </div>
         </div>
 
-        {/* Founder — open editorial split */}
+        {/* Founder — Meet the Founder */}
         <div className="mt-24">
           <Reveal>
-            <p className="eyebrow mb-10 text-center">The Creator</p>
+            <p className="eyebrow mb-10 text-center">Meet the Founder</p>
           </Reveal>
-
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:gap-14 xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-            {/* Portrait */}
-            <Reveal>
-              <div className="relative mx-auto aspect-[3/4] w-full max-w-[14rem] overflow-hidden rounded-2xl sm:max-w-[16rem] lg:mx-0 lg:max-w-none">
-                <img
-                  src={founder.photo}
-                  alt={founder.name}
-                  className="h-full w-full object-cover object-top"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink-950/50 via-transparent to-transparent" />
-              </div>
-            </Reveal>
-
-            {/* Details */}
-            <Reveal delay={0.08}>
-              <div className="text-center lg:text-left">
-                <h3 className="font-serif text-4xl leading-tight text-cloud sm:text-5xl">
-                  {founder.name}
-                </h3>
-                <span className="mt-3 inline-block rounded-full bg-champagne/15 px-3 py-1 text-[11px] font-medium uppercase tracking-widest text-champagne">
-                  {founder.title}
-                </span>
-
-                <span className="mx-auto mt-7 block h-px w-10 bg-champagne/50 lg:mx-0" />
-
-                <p className="mt-5 leading-relaxed text-cloud/65">
-                  {founder.bio1}
-                </p>
-                <p className="mt-3 leading-relaxed text-cloud/65">
-                  {founder.bio2}
-                </p>
-
-                <div className="mt-6 grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-6">
-                  {founder.specialties.map((s) => (
-                    <div
-                      key={s}
-                      className="flex items-center justify-center gap-2 text-sm text-cloud/55 lg:justify-start"
-                    >
-                      <span className="h-1 w-1 flex-shrink-0 rounded-full bg-champagne/60" />
-                      {s}
-                    </div>
-                  ))}
-                </div>
-
-                <p className="mt-6 font-serif text-lg italic text-champagne/80">
-                  "{founder.tagline}"
-                </p>
-
-                <div className="mt-6 flex items-center justify-center gap-3 lg:justify-start">
-                  <a
-                    href={`tel:${studio.phone.replace(/\s/g, '')}`}
-                    aria-label={`Call ${founder.name} at ${studio.phone}`}
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
-                               text-cloud/60 transition-all hover:border-champagne hover:text-champagne"
-                  >
-                    <Phone size={17} />
-                  </a>
-                  <a
-                    href={founder.instagram}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="MG Sandosh on Instagram"
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
-                               text-cloud/60 transition-all hover:border-champagne hover:text-champagne"
-                  >
-                    <Instagram size={17} />
-                  </a>
-                  <a
-                    href={founder.whatsapp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label="Message MG Sandosh on WhatsApp"
-                    className="flex h-11 w-11 items-center justify-center rounded-full border border-ink-600
-                               text-cloud/60 transition-all hover:border-[#25D366] hover:text-[#25D366]"
-                  >
-                    <WhatsAppIcon size={17} />
-                  </a>
-                </div>
-              </div>
-            </Reveal>
-          </div>
+          <FounderProfile />
         </div>
 
         {/* Our Brands */}
@@ -482,7 +604,7 @@ export default function About() {
                                 ? 'h-full w-full object-cover'
                                 : b.name === 'SISIRAS Digital Advertising'
                                   ? 'h-full w-full scale-[1.08] object-cover'
-                                  : b.name === 'JHUMKAS'
+                                  : b.name === 'JHUMKAS' || b.name === 'B.dev'
                                     ? 'h-[92%] w-auto max-w-[92%] scale-100 object-contain'
                                     : 'h-[92%] w-auto max-w-[92%] scale-125 object-contain'
                             }
