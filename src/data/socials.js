@@ -46,7 +46,7 @@ export function mapsLink() {
 
 // Who built the website (footer credit). WhatsApp digits: 0760484612 → 94760484612.
 export const developer = {
-  name: 'B.Dev & BlinkSky Media',
+  name: 'Assura Solutions & BlinkSky Media',
   whatsapp: '94760484612',
 }
 

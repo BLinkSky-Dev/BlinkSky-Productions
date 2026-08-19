@@ -63,9 +63,9 @@ const brands = [
     description: 'Wedding photography studio capturing bridal moments with a fine art touch.',
   },
   {
-    name: 'B.dev',
-    logo: '/logo-bdev.png',
-    logoBg: 'bg-black',
+    name: 'Assura Solutions',
+    logo: '/logo-AssuraS.png',
+    logoBg: 'bg-white',
     description:
       'Transforming businesses for the digital age through innovative solutions, custom development, and strategic social media marketing.',
   },
