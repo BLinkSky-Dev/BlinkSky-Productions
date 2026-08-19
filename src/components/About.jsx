@@ -562,13 +562,12 @@ export default function About() {
         {/* Our Brands */}
         <div className="mt-24">
           <Reveal>
-            <p className="eyebrow mb-4 text-center">Our Family</p>
+            <p className="eyebrow mb-4 text-center">OUR FAMILY & PARTNERS</p>
             <h2 className="font-serif text-center text-3xl text-cloud sm:text-4xl">
-              The BlinkSky brands
+              The BlinkSky Network
             </h2>
             <p className="mx-auto mt-4 max-w-md text-center leading-relaxed text-cloud/55">
-              Eight brands, one standard of work.
-              <span className="lg:hidden"> Swipes on its own — or swipe yourself.</span>
+              Our brands, creative ventures, and trusted partners..
             </p>
           </Reveal>
 
