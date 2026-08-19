@@ -16,7 +16,7 @@ const founder = {
   photo: '/Founder.jpeg',
   bio: [
     'BlinkSky Production was founded by M G Sandosh, a passionate creative professional and generational photographer with a vision to turn moments, ideas, and stories into powerful visual experiences.',
-    'For Sandosh, photography has always been about more than simply capturing a beautiful image. Families find him once for a wedding, and years later, return to him for the next chapter of their story. That lasting connection is what he works toward with every project — creating photographs that are framed, cherished, and passed down through generations, rather than simply uploaded and forgotten.',
+    'For Sandosh, photography has always been about more than simply capturing a beautiful image. Families find him once for a wedding, and years later, return to him for the next chapter of their story. That lasting connection is what he works toward with every project , creating photographs that are framed, cherished, and passed down through generations, rather than simply uploaded and forgotten.',
     'His journey began at Sisiras Studio, where he developed his foundation in photography and visual storytelling. He later founded BlinkSky Production, transforming his passion into a creative production house built around authentic storytelling, cinematic visuals, and meaningful experiences.',
     'Today, Sandosh is the founder of 8+ brands and brings experience across photography, videography, creative direction, graphic design, digital content, and marketing. Even after eight years in the industry, he continues to personally shoot every project, maintaining the creative quality and personal touch that have become central to his work.',
     'From intimate wedding moments to large-scale commercial productions, his approach remains the same: understand the story, capture the emotion, and create something that lasts.',
@@ -31,7 +31,7 @@ const founder = {
     'Cinematic Videography',
   ],
   closing:
-    'At BlinkSky Production, the goal is simple — to create more than visuals; to preserve stories, emotions, and memories that can be felt today and remembered for generations.',
+    'At BlinkSky Production, the goal is simple , to create more than visuals; to preserve stories, emotions, and memories that can be felt today and remembered for generations.',
   instagram: 'https://www.instagram.com/mg_sandosh',
   whatsapp: 'https://wa.me/94760047671',
 }
